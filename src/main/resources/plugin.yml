@@ -1,0 +1,6 @@
+name: dungeon-weapons
+version: '1.0-SNAPSHOT'
+main: brcomkassin.dungeonWeapons.DungeonWeaponsPlugin
+api-version: '1.21'
+commands:
+  weapon:

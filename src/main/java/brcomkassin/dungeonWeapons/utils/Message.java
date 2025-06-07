@@ -1,0 +1,47 @@
+package brcomkassin.dungeonWeapons.utils;
+
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+
+import java.util.Arrays;
+
+public interface Message {
+    class Chat {
+        public static void send(Player player, String... message) {
+            Arrays.stream(message)
+                    .map(string -> ChatColor.translateAlternateColorCodes('&', string))
+                    .forEach(player::sendMessage);
+        }
+    }
+
+    class ActionBar {
+        public static void send(Player player, String message) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
+        }
+    }
+
+    class ChatClick {
+        public static void send(Player player, String message, String hoverMessage, String command) {
+            TextComponent component = new TextComponent(ChatColor.translateAlternateColorCodes('&', message));
+            component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+            component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                    new ComponentBuilder(ChatColor.translateAlternateColorCodes('&', hoverMessage)).create()));
+
+            player.spigot().sendMessage(component);
+        }
+
+        public static void send(Player player, String message, String hoverMessage) {
+            TextComponent component = new TextComponent(ChatColor.translateAlternateColorCodes('&', message));
+            component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                    new ComponentBuilder(ChatColor.translateAlternateColorCodes('&', hoverMessage)).create()));
+
+            player.spigot().sendMessage(component);
+        }
+    }
+}
