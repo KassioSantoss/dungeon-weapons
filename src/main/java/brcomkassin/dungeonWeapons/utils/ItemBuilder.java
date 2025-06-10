@@ -104,7 +104,7 @@ public final class ItemBuilder {
         return consume(item -> item.addUnsafeEnchantment(enchantment, level));
     }
 
-    public ItemBuilder setNameSpacedKey(String key) {
+    public ItemBuilder setNameSpacedKey(String id,String key) {
         return consumeMeta(meta -> {
             PersistentDataContainer container = meta.getPersistentDataContainer();
             NamespacedKey namespacedKey = new NamespacedKey(plugin, key);

@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 
 import java.util.List;
+import java.util.UUID;
 
 public class RoyalSword extends Weapon {
     public RoyalSword() {
@@ -20,18 +21,14 @@ public class RoyalSword extends Weapon {
                         .text("al").color(214, 178, 33)
                         .text(" Swo").color(245, 216, 98)
                         .text("rd").color(240, 198, 30)
-                        .build(), "royal_sword", WeaponType.ROYAL_SWORD, Material.NETHERITE_SWORD,
+                        .build(),
+                UUID.randomUUID(), WeaponType.ROYAL_SWORD, Material.NETHERITE_SWORD,
                 WeaponParticleMetadata.Builder.of()
                         .color(Color.BLUE)
                         .size(5)
                         .type(Particle.DUST)
                         .build(),
                 List.of(AbilityType.JUMP, AbilityType.REPULSION_WAVE));
-        unlockAbilities(AbilityType.REPULSION_WAVE);
     }
 
-    @Override
-    protected Weapon createClone() {
-        return new RoyalSword();
-    }
 }

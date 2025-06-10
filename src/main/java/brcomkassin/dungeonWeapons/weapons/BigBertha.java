@@ -15,6 +15,7 @@ import org.bukkit.entity.Item;
 import org.checkerframework.checker.units.qual.A;
 
 import java.util.List;
+import java.util.UUID;
 
 public class BigBertha extends Weapon {
 
@@ -26,7 +27,7 @@ public class BigBertha extends Weapon {
                         .text("Ber").color(255, 178, 178)
                         .text("tha").color(196, 105, 105)
                         .build(),
-                "big_bertha", WeaponType.BIG_BERTHA, Material.NETHERITE_SWORD,
+                UUID.randomUUID(), WeaponType.BIG_BERTHA, Material.NETHERITE_SWORD,
                 WeaponParticleMetadata.Builder.of()
                         .type(Particle.DUST)
                         .color(Color.fromRGB(255, 122, 122))
@@ -35,8 +36,4 @@ public class BigBertha extends Weapon {
                 List.of(AbilityType.JUMP, AbilityType.REPULSION_WAVE));
     }
 
-    @Override
-    protected Weapon createClone() {
-        return new BigBertha();
-    }
 }

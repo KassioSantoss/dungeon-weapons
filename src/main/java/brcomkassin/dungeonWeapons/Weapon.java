@@ -1,52 +1,42 @@
 package brcomkassin.dungeonWeapons;
 
 import brcomkassin.dungeonWeapons.ability.AbilityType;
-import brcomkassin.dungeonWeapons.cache.WeaponCache;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
 import brcomkassin.dungeonWeapons.ability.WeaponAbility;
-import brcomkassin.dungeonWeapons.data.WeaponData;
-import brcomkassin.dungeonWeapons.data.WeaponDataSerializer;
-import brcomkassin.dungeonWeapons.manager.WeaponManager;
 import brcomkassin.dungeonWeapons.utils.ColoredLogger;
 import brcomkassin.dungeonWeapons.utils.ItemBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public abstract class Weapon implements Cloneable {
+public abstract class Weapon {
 
     protected Component displayName;
-    protected String id;
+    protected UUID id;
     protected WeaponType type;
     protected Set<AbilityType> abilities;
     protected ItemStack weaponItem;
     protected WeaponParticleMetadata particleMetadata;
     protected WeaponAbility currentAbility;
     protected List<AbilityType> availableAbilities;
-    protected WeaponData weaponData;
-    private WeaponManager weaponManager = WeaponManager.of();
 
-    public Weapon(String name, String id, WeaponType type, Material material,
+    public Weapon(String name, UUID id, WeaponType type, Material material,
                   WeaponParticleMetadata particleMetadata, List<AbilityType> availableAbilities) {
         this(Component.text(name), id, type, material, particleMetadata, availableAbilities);
     }
 
-    public Weapon(Component displayName, String id, WeaponType type, Material material,
+    public Weapon(Component displayName, UUID id, WeaponType type, Material material,
                   WeaponParticleMetadata particleMetadata, List<AbilityType> availableAbilities) {
         this.displayName = displayName;
-        this.id = id;
+        this.id = id != null ? id : UUID.randomUUID();
         this.type = type;
         this.abilities = new LinkedHashSet<>();
         this.particleMetadata = particleMetadata;
@@ -55,87 +45,46 @@ public abstract class Weapon implements Cloneable {
         this.weaponItem = ItemBuilder.of(material)
                 .setName(displayName)
                 .build();
-        initializeData();
     }
 
-    public void saveWeaponStateToItem(Player player) {
-        this.weaponData.id = this.id;
-        this.weaponData.displayName = GsonComponentSerializer.gson().serialize(this.displayName);
-        this.weaponData.type = this.type.name();
-        this.weaponData.abilities = this.abilities.stream().map(AbilityType::name).collect(Collectors.toList());
-        this.weaponData.currentAbility = this.currentAbility != null ? this.currentAbility.getType().name() : null;
-        this.weaponData.availableAbilities = this.availableAbilities.stream().map(AbilityType::name).collect(Collectors.toList());
-        this.weaponData.particleMetadata = this.particleMetadata;
-        ItemStack itemStack = WeaponManager.of().saveDataToItem(this.weaponItem, weaponData);
-        this.weaponItem = itemStack;
-        ColoredLogger.info("[saveWeaponStateToItem]: =====================================");
-        ColoredLogger.info("[saveWeaponStateToItem]: " + itemStack.getPersistentDataContainer());
-        ColoredLogger.info("[saveWeaponStateToItem]: " + weaponData);
-        ColoredLogger.info("[saveWeaponStateToItem]: =====================================");
-        WeaponCache.addWeaponToCache(this);
+    public void savePDC(Player player) {
+        String serialize = WeaponSerializer.serialize(this);
+        this.weaponItem = PDCUtil.savePDC(weaponItem, WeaponIds.WEAPON_KEY, serialize);
+        this.weaponItem = PDCUtil.savePDC(weaponItem, WeaponIds.WEAPON_ID_KEY, id.toString());
+        ItemStack build = ItemBuilder.of(this.weaponItem)
+                .setName(this.displayName)
+                .build();
+
+        player.getInventory().setItemInMainHand(build);
     }
 
-    private void initializeData() {
-        this.weaponData = new WeaponData();
-        this.weaponData.id = this.id;
-        this.weaponData.displayName = GsonComponentSerializer.gson().serialize(this.displayName);
-        this.weaponData.type = this.type.name();
-        this.weaponData.abilities = this.abilities.stream().map(AbilityType::name).collect(Collectors.toList());
-        this.weaponData.currentAbility = this.currentAbility != null ? this.currentAbility.getType().name() : null;
-        this.weaponData.availableAbilities = this.availableAbilities.stream().map(AbilityType::name).collect(Collectors.toList());
-        this.weaponData.particleMetadata = this.particleMetadata;
-    }
-
-    public void initWeaponState(WeaponData data) {
-        this.id = data.id;
-        this.displayName = GsonComponentSerializer.gson().deserialize(data.displayName);
-        this.type = WeaponType.valueOf(data.type);
-        this.abilities = data.abilities.stream()
-                .map(AbilityType::valueOf)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-        this.availableAbilities = data.availableAbilities.stream()
-                .map(AbilityType::valueOf)
-                .collect(Collectors.toList());
-        this.currentAbility = data.currentAbility != null
-                ? AbilityType.valueOf(data.currentAbility).getAbility()
-                : null;
-        this.particleMetadata = data.particleMetadata;
-        this.weaponItem = WeaponManager.of().saveDataToItem(this.weaponItem, data);
-
-        ColoredLogger.info("[initWeaponState]: ===================================");
-        ColoredLogger.info("[initWeaponState]: " + weaponItem.getPersistentDataContainer());
-        ColoredLogger.info("[initWeaponState]: ===================================");
+    public void saveItem(Player player) {
+        player.getInventory().setItemInMainHand(this.getWeaponItem());
     }
 
     public void addAvailableAbility(AbilityType ability) {
         this.availableAbilities.add(ability);
     }
 
-    public void selectAbility(AbilityType ability) {
-        if (abilities.contains(ability)) {
-            this.currentAbility = ability.getAbility();
-        }
-    }
-
-    public void unlockAbilities(AbilityType ability) {
+    public void unlockAbilities(Player player, AbilityType ability) {
         if (!availableAbilities.contains(ability)) {
             ColoredLogger.error("[unlockAbilities]: Ability " + ability.getAbility().getName()
                     + " not found in available abilities");
             return;
         }
-        addAbility(ability);
+        addAbility(player, ability);
     }
 
-    private void addAbility(AbilityType ability) {
+    private void addAbility(Player player, AbilityType ability) {
         if (abilities.contains(ability)) return;
         this.abilities.add(ability);
         if (currentAbility == null) {
             this.currentAbility = ability.getAbility();
         }
-      //  saveWeaponStateToItem();
+        savePDC(player);
     }
 
-    public void removeAbility(AbilityType ability) {
+    public void removeAbility(Player player, AbilityType ability) {
         if (!abilities.contains(ability)) return;
         this.abilities.remove(ability);
         if (currentAbility != null && currentAbility.equals(ability.getAbility())) {
@@ -144,7 +93,7 @@ public abstract class Weapon implements Cloneable {
                     .map(AbilityType::getAbility)
                     .orElse(null);
         }
-    //    saveWeaponStateToItem();
+        savePDC(player);
     }
 
     public void removeAllAbilities() {
@@ -174,21 +123,6 @@ public abstract class Weapon implements Cloneable {
             currentAbility = ordered.get(nextIndex).getAbility();
         }
     }
-
-    public void removeNamespacedData(NamespacedKey key) {
-        ItemMeta meta = weaponItem.getItemMeta();
-        if (meta == null) return;
-
-        meta.getPersistentDataContainer().remove(key);
-        weaponItem.setItemMeta(meta);
-    }
-
-    public Weapon cloneWeapon() {
-        Weapon clone = createClone();
-        return clone;
-    }
-
-    protected abstract Weapon createClone();
 
     @Override
     public String toString() {

@@ -1,10 +1,10 @@
 package brcomkassin.dungeonWeapons.command;
 
-import brcomkassin.dungeonWeapons.Weapon;
-import brcomkassin.dungeonWeapons.WeaponType;
+import brcomkassin.dungeonWeapons.*;
 import brcomkassin.dungeonWeapons.ability.AbilityType;
 import brcomkassin.dungeonWeapons.manager.WeaponManager;
-import brcomkassin.dungeonWeapons.registry.WeaponRegistry;
+import brcomkassin.dungeonWeapons.utils.ColoredLogger;
+import brcomkassin.dungeonWeapons.utils.Message;
 import brcomkassin.dungeonWeapons.utils.MessageText;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -35,6 +35,8 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
         switch (args[0].toLowerCase()) {
             case "give" -> handleGive(player, args);
             case "ability" -> handleAbility(player, args);
+            case "pdc" -> Message.Chat.send(player, "" +
+                    player.getInventory().getItemInMainHand().getPersistentDataContainer().getKeys());
             default ->
                     player.sendMessage(Component.text("Subcomando desconhecido. Use give ou ability.").color(NamedTextColor.RED));
         }
@@ -48,16 +50,14 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
             return;
         }
 
-        Weapon weapon = WeaponRegistry.fromType(args[1].toUpperCase());
+        Weapon weapon = WeaponManager.of().getWeapon(args[1].toUpperCase());
 
         if (weapon == null) {
             player.sendMessage(Component.text("Arma inválida.").color(NamedTextColor.RED));
             return;
         }
 
-        weapon.saveWeaponStateToItem(player);
-
-        player.getInventory().addItem(weapon.getWeaponItem());
+        weapon.savePDC(player);
 
         Component component = MessageText.create().text("Você recebeu o ").color(0, 160, 217).bold()
                 .text(weapon.getDisplayName())
@@ -88,7 +88,12 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
             return;
         }
 
-        Weapon weapon = WeaponManager.of().getWeapon(player,item);
+        String readPDC = PDCUtil.readPDC(item, WeaponIds.WEAPON_KEY);
+        WeaponData deserialize = WeaponSerializer.deserialize(readPDC);
+
+        ColoredLogger.info("deserialize COMMAND: " + deserialize);
+        Weapon weapon = WeaponManager.of().getWeaponByUUID(deserialize.getId());
+
         if (weapon == null) {
             player.sendMessage(Component.text("Este item não é uma arma válida.").color(NamedTextColor.RED));
             return;
@@ -96,7 +101,7 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
 
         switch (action) {
             case "add" -> {
-                weapon.unlockAbilities(abilityType);
+                weapon.unlockAbilities(player, abilityType);
                 Component component = MessageText.create().text("Habilidade ").color(0, 160, 217)
                         .text(abilityType.name()).color(0, 160, 217)
                         .text(" adicionada à ").color(0, 160, 217)
@@ -107,7 +112,7 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
             }
 
             case "remove" -> {
-                weapon.removeAbility(abilityType);
+                weapon.removeAbility(player, abilityType);
                 Component component = MessageText.create().text("Habilidade ").color(0, 160, 217)
                         .text(abilityType.name()).color(0, 160, 217)
                         .text(" removida da ").color(0, 160, 217)

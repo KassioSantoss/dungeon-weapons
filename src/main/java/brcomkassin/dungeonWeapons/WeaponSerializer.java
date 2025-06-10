@@ -1,18 +1,17 @@
-package brcomkassin.dungeonWeapons.data;
+package brcomkassin.dungeonWeapons;
 
-import brcomkassin.dungeonWeapons.WeaponIds;
 import brcomkassin.dungeonWeapons.utils.ColoredLogger;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 
-public class WeaponDataSerializer {
+public class WeaponSerializer {
     private static final Gson GSON = new Gson();
 
-    public static String serialize(WeaponData data) {
+    public static String serialize(Weapon weapon) {
+        WeaponData data = new WeaponData(weapon);
         return GSON.toJson(data);
     }
 
@@ -25,15 +24,19 @@ public class WeaponDataSerializer {
     }
 
     public static WeaponData readFromItem(ItemStack item) {
+        ColoredLogger.info("&ALENDO INFORMAÇOES DO ITEM:");
         if (item == null) return null;
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return null;
-        NamespacedKey key = WeaponIds.WEAPON_KEY;
-        String json = meta.getPersistentDataContainer().get(key, PersistentDataType.STRING);
 
+        String key = PDCUtil.readPDC(item, WeaponIds.WEAPON_ID_KEY);
+
+        if (key == null) return null;
+
+        String json = PDCUtil.readPDC(item, WeaponIds.WEAPON_KEY);
         if (json == null) return null;
-        WeaponData deserialize = WeaponDataSerializer.deserialize(json);
-
+        WeaponData deserialize = deserialize(json);
+        ColoredLogger.info("&b[readFromItem] deserialize: " + deserialize);
         return deserialize;
     }
 

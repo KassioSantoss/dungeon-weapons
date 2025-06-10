@@ -8,7 +8,6 @@ import brcomkassin.dungeonWeapons.event.WeaponUseEvent;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
 import brcomkassin.dungeonWeapons.ability.WeaponAbility;
 import brcomkassin.dungeonWeapons.manager.WeaponManager;
-import brcomkassin.dungeonWeapons.registry.WeaponRegistry;
 import brcomkassin.dungeonWeapons.utils.CooldownUtils;
 import brcomkassin.dungeonWeapons.utils.DecimalFormatUtil;
 import brcomkassin.dungeonWeapons.utils.Message;
@@ -24,7 +23,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -85,7 +83,7 @@ public class WeaponListener implements Listener {
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item.isEmpty()) return;
 
-        Weapon weapon = weaponManager.getWeapon(player,item);
+        Weapon weapon = weaponManager.getWeapon(player, item);
 
         if (weapon == null) return;
         WeaponAbility currentAbility = weapon.getCurrentAbility();
@@ -107,7 +105,7 @@ public class WeaponListener implements Listener {
     public void onChange(PlayerSwapHandItemsEvent event) {
         Player player = event.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.isEmpty() || !WeaponRegistry.isWeapon(item)) return;
+        if (item.isEmpty() || !weaponManager.isWeapon(item)) return;
         event.setCancelled(true);
         Weapon weapon = weaponManager.getWeapon(player,item);
         if (weapon == null) return;
