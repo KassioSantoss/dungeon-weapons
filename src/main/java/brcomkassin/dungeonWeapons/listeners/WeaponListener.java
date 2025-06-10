@@ -1,7 +1,7 @@
 package brcomkassin.dungeonWeapons.listeners;
 
 import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
-import brcomkassin.dungeonWeapons.Weapon;
+import brcomkassin.dungeonWeapons.weapon.Weapon;
 import brcomkassin.dungeonWeapons.cache.PlayerAbilityInUseCache;
 import brcomkassin.dungeonWeapons.event.WeaponAbilityUseEvent;
 import brcomkassin.dungeonWeapons.event.WeaponUseEvent;
@@ -69,7 +69,7 @@ public class WeaponListener implements Listener {
         if (!event.getAction().isRightClick()) return;
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item.isEmpty()) return;
-        Weapon weapon = weaponManager.getWeapon(player,item);
+        Weapon weapon = weaponManager.getWeapon(item);
         if (weapon == null) return;
         WeaponAbility currentAbility = weapon.getCurrentAbility();
         if (currentAbility == null || !currentAbility.requiresRightClick()) return;
@@ -83,7 +83,7 @@ public class WeaponListener implements Listener {
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item.isEmpty()) return;
 
-        Weapon weapon = weaponManager.getWeapon(player, item);
+        Weapon weapon = weaponManager.getWeapon( item);
 
         if (weapon == null) return;
         WeaponAbility currentAbility = weapon.getCurrentAbility();
@@ -107,7 +107,7 @@ public class WeaponListener implements Listener {
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item.isEmpty() || !weaponManager.isWeapon(item)) return;
         event.setCancelled(true);
-        Weapon weapon = weaponManager.getWeapon(player,item);
+        Weapon weapon = weaponManager.getWeapon(item);
         if (weapon == null) return;
 
         weapon.cycleAbility();

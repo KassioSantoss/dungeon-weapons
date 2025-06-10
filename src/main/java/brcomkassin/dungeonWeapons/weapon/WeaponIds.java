@@ -1,5 +1,6 @@
-package brcomkassin.dungeonWeapons;
+package brcomkassin.dungeonWeapons.weapon;
 
+import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
 import org.bukkit.NamespacedKey;
 
 public interface WeaponIds {

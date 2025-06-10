@@ -1,6 +1,6 @@
 package brcomkassin.dungeonWeapons.context;
 
-import brcomkassin.dungeonWeapons.Weapon;
+import brcomkassin.dungeonWeapons.weapon.Weapon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 

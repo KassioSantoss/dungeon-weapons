@@ -1,10 +1,11 @@
 package brcomkassin.dungeonWeapons.registry;
 
-import brcomkassin.dungeonWeapons.*;
 import brcomkassin.dungeonWeapons.utils.ColoredLogger;
-import brcomkassin.dungeonWeapons.weapons.BigBertha;
-import brcomkassin.dungeonWeapons.weapons.RoyalSword;
-import java.util.HashMap;
+import brcomkassin.dungeonWeapons.weapon.item.BigBertha;
+import brcomkassin.dungeonWeapons.weapon.item.RoyalSword;
+import brcomkassin.dungeonWeapons.weapon.Weapon;
+import brcomkassin.dungeonWeapons.weapon.WeaponType;
+
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

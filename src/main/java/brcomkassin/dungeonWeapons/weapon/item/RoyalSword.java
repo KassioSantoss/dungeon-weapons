@@ -1,11 +1,9 @@
-package brcomkassin.dungeonWeapons.weapons;
+package brcomkassin.dungeonWeapons.weapon.item;
 
-import brcomkassin.dungeonWeapons.Weapon;
-import brcomkassin.dungeonWeapons.WeaponParticleMetadata;
-import brcomkassin.dungeonWeapons.WeaponType;
+import brcomkassin.dungeonWeapons.weapon.Weapon;
+import brcomkassin.dungeonWeapons.weapon.WeaponType;
+import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
 import brcomkassin.dungeonWeapons.ability.AbilityType;
-import brcomkassin.dungeonWeapons.ability.RepulsionWaveAbility;
-import brcomkassin.dungeonWeapons.utils.ItemBuilder;
 import brcomkassin.dungeonWeapons.utils.MessageText;
 import org.bukkit.Color;
 import org.bukkit.Material;

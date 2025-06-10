@@ -1,11 +1,16 @@
 package brcomkassin.dungeonWeapons.command;
 
-import brcomkassin.dungeonWeapons.*;
 import brcomkassin.dungeonWeapons.ability.AbilityType;
+import brcomkassin.dungeonWeapons.utils.PDCUtil;
+import brcomkassin.dungeonWeapons.weapon.Weapon;
+import brcomkassin.dungeonWeapons.weapon.WeaponIds;
+import brcomkassin.dungeonWeapons.weapon.WeaponType;
+import brcomkassin.dungeonWeapons.weapon.data.WeaponData;
 import brcomkassin.dungeonWeapons.manager.WeaponManager;
 import brcomkassin.dungeonWeapons.utils.ColoredLogger;
 import brcomkassin.dungeonWeapons.utils.Message;
 import brcomkassin.dungeonWeapons.utils.MessageText;
+import brcomkassin.dungeonWeapons.weapon.data.WeaponSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
@@ -86,13 +91,9 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
         if (item.getType().isAir()) {
             player.sendMessage(Component.text("Você precisa estar segurando uma arma.").color(NamedTextColor.RED));
             return;
-        }
+        };
 
-        String readPDC = PDCUtil.readPDC(item, WeaponIds.WEAPON_KEY);
-        WeaponData deserialize = WeaponSerializer.deserialize(readPDC);
-
-        ColoredLogger.info("deserialize COMMAND: " + deserialize);
-        Weapon weapon = WeaponManager.of().getWeaponByUUID(deserialize.getId());
+        Weapon weapon = WeaponManager.of().getWeapon(player.getInventory().getItemInMainHand());
 
         if (weapon == null) {
             player.sendMessage(Component.text("Este item não é uma arma válida.").color(NamedTextColor.RED));
@@ -101,7 +102,7 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
 
         switch (action) {
             case "add" -> {
-                weapon.unlockAbilities(player, abilityType);
+                weapon.unlockAbilities(player, abilityType); // aqui o nome buga
                 Component component = MessageText.create().text("Habilidade ").color(0, 160, 217)
                         .text(abilityType.name()).color(0, 160, 217)
                         .text(" adicionada à ").color(0, 160, 217)

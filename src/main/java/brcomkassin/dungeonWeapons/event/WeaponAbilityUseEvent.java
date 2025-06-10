@@ -1,6 +1,6 @@
 package brcomkassin.dungeonWeapons.event;
 
-import brcomkassin.dungeonWeapons.Weapon;
+import brcomkassin.dungeonWeapons.weapon.Weapon;
 import brcomkassin.dungeonWeapons.ability.WeaponAbility;
 import lombok.Getter;
 import org.bukkit.entity.Entity;

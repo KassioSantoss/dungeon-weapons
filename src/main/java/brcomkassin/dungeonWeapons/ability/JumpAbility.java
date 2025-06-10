@@ -1,7 +1,7 @@
 package brcomkassin.dungeonWeapons.ability;
 
 import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
-import brcomkassin.dungeonWeapons.WeaponParticleMetadata;
+import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
 import brcomkassin.dungeonWeapons.utils.CooldownUtils;
 import org.bukkit.Particle;

@@ -1,6 +1,5 @@
-package brcomkassin.dungeonWeapons;
+package brcomkassin.dungeonWeapons.weapon.data;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Color;

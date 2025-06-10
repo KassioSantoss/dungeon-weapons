@@ -1,13 +1,14 @@
 package brcomkassin.dungeonWeapons.manager;
 
-import brcomkassin.dungeonWeapons.*;
 import brcomkassin.dungeonWeapons.cache.WeaponCache;
+import brcomkassin.dungeonWeapons.utils.PDCUtil;
+import brcomkassin.dungeonWeapons.weapon.Weapon;
+import brcomkassin.dungeonWeapons.weapon.WeaponIds;
+import brcomkassin.dungeonWeapons.weapon.WeaponInstance;
+import brcomkassin.dungeonWeapons.weapon.data.WeaponData;
 import brcomkassin.dungeonWeapons.registry.WeaponRegistry;
-import brcomkassin.dungeonWeapons.utils.ColoredLogger;
-import org.bukkit.entity.Player;
+import brcomkassin.dungeonWeapons.weapon.data.WeaponSerializer;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.UUID;
 
 public class WeaponManager {
 
@@ -20,7 +21,8 @@ public class WeaponManager {
         return INSTANCE;
     }
 
-    public Weapon getWeapon(Player player, ItemStack itemStack) {
+    public Weapon getWeapon(ItemStack itemStack) {
+        if (!isWeapon(itemStack)) return null;
         WeaponData weaponData = WeaponSerializer.readFromItem(itemStack);
 
         if (weaponData == null) return null;
@@ -35,15 +37,7 @@ public class WeaponManager {
 
     public Weapon getWeapon(String type) {
         Weapon weapon = WeaponRegistry.getType(type);
-        if (weapon == null) {
-            ColoredLogger.error("Arma nao encontrada!");
-            return null;
-        }
         return weapon;
-    }
-
-    public Weapon getWeaponByUUID(UUID uuid) {
-        return WeaponCache.getWeaponFromCache(uuid);
     }
 
     public boolean isWeapon(ItemStack itemStack) {

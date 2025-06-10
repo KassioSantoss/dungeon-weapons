@@ -1,4 +1,4 @@
-package brcomkassin.dungeonWeapons;
+package brcomkassin.dungeonWeapons.utils;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;

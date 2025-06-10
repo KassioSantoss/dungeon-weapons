@@ -1,7 +1,8 @@
-package brcomkassin.dungeonWeapons;
+package brcomkassin.dungeonWeapons.weapon;
 
-import brcomkassin.dungeonWeapons.weapons.BigBertha;
-import brcomkassin.dungeonWeapons.weapons.RoyalSword;
+import brcomkassin.dungeonWeapons.utils.PDCUtil;
+import brcomkassin.dungeonWeapons.weapon.item.BigBertha;
+import brcomkassin.dungeonWeapons.weapon.item.RoyalSword;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Supplier;

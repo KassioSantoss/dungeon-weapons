@@ -1,17 +1,19 @@
-package brcomkassin.dungeonWeapons;
+package brcomkassin.dungeonWeapons.weapon;
 
+import brcomkassin.dungeonWeapons.utils.PDCUtil;
 import brcomkassin.dungeonWeapons.ability.AbilityType;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
 import brcomkassin.dungeonWeapons.ability.WeaponAbility;
 import brcomkassin.dungeonWeapons.utils.ColoredLogger;
 import brcomkassin.dungeonWeapons.utils.ItemBuilder;
+import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
+import brcomkassin.dungeonWeapons.weapon.data.WeaponSerializer;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 
@@ -52,14 +54,11 @@ public abstract class Weapon {
         this.weaponItem = PDCUtil.savePDC(weaponItem, WeaponIds.WEAPON_KEY, serialize);
         this.weaponItem = PDCUtil.savePDC(weaponItem, WeaponIds.WEAPON_ID_KEY, id.toString());
         ItemStack build = ItemBuilder.of(this.weaponItem)
-                .setName(this.displayName)
+                .setName(displayName)
                 .build();
 
         player.getInventory().setItemInMainHand(build);
-    }
-
-    public void saveItem(Player player) {
-        player.getInventory().setItemInMainHand(this.getWeaponItem());
+        ColoredLogger.info("displayName: " + this.getDisplayName());
     }
 
     public void addAvailableAbility(AbilityType ability) {

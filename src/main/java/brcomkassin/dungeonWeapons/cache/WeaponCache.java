@@ -1,6 +1,6 @@
 package brcomkassin.dungeonWeapons.cache;
 
-import brcomkassin.dungeonWeapons.Weapon;
+import brcomkassin.dungeonWeapons.weapon.Weapon;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
