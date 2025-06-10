@@ -5,4 +5,5 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public record AbilityContext(Player player, Entity target, Weapon weapon) {
+
 }

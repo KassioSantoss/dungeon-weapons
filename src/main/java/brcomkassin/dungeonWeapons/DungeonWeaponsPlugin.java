@@ -2,6 +2,7 @@ package brcomkassin.dungeonWeapons;
 
 import brcomkassin.dungeonWeapons.initializer.WeaponInitializer;
 import lombok.Getter;
+
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class DungeonWeaponsPlugin extends JavaPlugin {

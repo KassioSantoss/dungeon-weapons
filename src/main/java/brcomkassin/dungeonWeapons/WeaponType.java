@@ -1,5 +1,5 @@
 package brcomkassin.dungeonWeapons;
 
 public enum WeaponType {
-    SWORD, BOW, SPEAR, AXE
+    BIG_BERTHA, ROYAL_SWORD
 }

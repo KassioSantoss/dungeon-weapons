@@ -1,10 +1,9 @@
 package brcomkassin.dungeonWeapons.utils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -17,13 +16,23 @@ public interface Message {
                     .map(string -> ChatColor.translateAlternateColorCodes('&', string))
                     .forEach(player::sendMessage);
         }
+
+        public static void send(Player player, Component... component) {
+            Arrays.stream(component)
+                    .forEach(player::sendMessage);
+        }
     }
 
     class ActionBar {
+        public static void send(Player player, Component component) {
+            player.sendActionBar(component);
+        }
+
         public static void send(Player player, String message) {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
                     new TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
         }
+
     }
 
     class ChatClick {

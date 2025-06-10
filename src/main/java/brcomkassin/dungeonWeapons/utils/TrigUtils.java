@@ -57,7 +57,7 @@ public final class TrigUtils {
             double z = center.getZ() + radius * Math.sin(angle);
 
             Location loc = new Location(center.getWorld(), x, center.getY(), z);
-            center.getWorld().spawnParticle(particle, loc, 1, 0, 0, 0, 0,dustOptions);
+            center.getWorld().spawnParticle(particle, loc, 1,dustOptions);
         }
     }
 
