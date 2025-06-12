@@ -1,6 +1,8 @@
 package brcomkassin.dungeonWeapons.listeners;
 
 import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
+import brcomkassin.dungeonWeapons.ability.AbilityType;
+import brcomkassin.dungeonWeapons.utils.*;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
 import brcomkassin.dungeonWeapons.cache.PlayerAbilityInUseCache;
 import brcomkassin.dungeonWeapons.event.WeaponAbilityUseEvent;
@@ -8,27 +10,33 @@ import brcomkassin.dungeonWeapons.event.WeaponUseEvent;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
 import brcomkassin.dungeonWeapons.ability.WeaponAbility;
 import brcomkassin.dungeonWeapons.manager.WeaponManager;
-import brcomkassin.dungeonWeapons.utils.CooldownUtils;
-import brcomkassin.dungeonWeapons.utils.DecimalFormatUtil;
-import brcomkassin.dungeonWeapons.utils.Message;
-import brcomkassin.dungeonWeapons.utils.MessageText;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.FluidCollisionMode;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class WeaponListener implements Listener {
 
-    private final Set<Weapon> register = new HashSet<>();
     private final WeaponManager weaponManager;
 
     public WeaponListener(WeaponManager weaponManager) {
@@ -40,9 +48,10 @@ public class WeaponListener implements Listener {
         Weapon weapon = event.getWeapon();
         Player player = event.getPlayer();
         Entity target = event.getTarget();
-
+        Location location = event.getLocation();
         WeaponAbility ability = weapon.getCurrentAbility();
-        WeaponAbilityUseEvent useEvent = new WeaponAbilityUseEvent(player, target, weapon, ability);
+
+        WeaponAbilityUseEvent useEvent = new WeaponAbilityUseEvent(player, target, weapon, location, ability);
         Bukkit.getPluginManager().callEvent(useEvent);
     }
 
@@ -53,27 +62,57 @@ public class WeaponListener implements Listener {
         Weapon weapon = event.getWeapon();
         WeaponAbility ability = event.getAbility();
 
-        if (CooldownUtils.isOnCooldown(ability.getName() + ":" + player.getName())) {
-            double remaining = (double) CooldownUtils.getRemaining(ability.getName() + ":" + player.getName()) / 1000;
-            Message.ActionBar.send(player, "&4Habilidade recarregando: &f" + DecimalFormatUtil.format(remaining) + "s restantes");
+        if (KCooldownUtils.isOnCooldown(ability.getName() + ":" + player.getName())) {
+            double remaining = (double) KCooldownUtils.getRemaining(ability.getName() + ":" + player.getName()) / 1000;
+            KMessage.ActionBar.send(player, "&4Habilidade recarregando: &f" + KDecimalFormatUtil.format(remaining) + "s restantes");
             return;
         }
-        AbilityContext context = new AbilityContext(player, target, weapon);
+
+        AbilityContext context = new AbilityContext(player, target, weapon, event.getLocation());
         weapon.performSkill(ability, context);
         PlayerAbilityInUseCache.add(ability.getName(), player.getName());
     }
 
     @EventHandler
-    public void onRightClickEntity(PlayerInteractEvent event) {
+    public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+
         if (!event.getAction().isRightClick()) return;
+
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item.isEmpty()) return;
         Weapon weapon = weaponManager.getWeapon(item);
         if (weapon == null) return;
+
         WeaponAbility currentAbility = weapon.getCurrentAbility();
         if (currentAbility == null || !currentAbility.requiresRightClick()) return;
-        WeaponUseEvent useEvent = new WeaponUseEvent(player, null, weapon);
+
+        if (event.getHand() == EquipmentSlot.OFF_HAND) return;
+
+        Location location = KTrigUtils.getTargetLocation(player, 100);
+        WeaponUseEvent useEvent = new WeaponUseEvent(player, location, weapon);
+        Bukkit.getPluginManager().callEvent(useEvent);
+    }
+
+    @EventHandler
+    public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
+        Player player = event.getPlayer();
+        Entity target = event.getRightClicked();
+        ItemStack item = player.getInventory().getItemInMainHand();
+
+        if (event.getHand() != EquipmentSlot.HAND) return;
+
+        if (item.isEmpty()) return;
+
+        Weapon weapon = weaponManager.getWeapon(item);
+        if (weapon == null) return;
+
+        WeaponAbility currentAbility = weapon.getCurrentAbility();
+        if (currentAbility == null || !currentAbility.requiresRightClick() ||
+                currentAbility.getName().equals(AbilityType.METEOR_FALL.getAbility().getName()))
+            return;
+
+        WeaponUseEvent useEvent = new WeaponUseEvent(player, target, weapon);
         Bukkit.getPluginManager().callEvent(useEvent);
     }
 
@@ -83,11 +122,12 @@ public class WeaponListener implements Listener {
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item.isEmpty()) return;
 
-        Weapon weapon = weaponManager.getWeapon( item);
+        Weapon weapon = weaponManager.getWeapon(item);
 
         if (weapon == null) return;
         WeaponAbility currentAbility = weapon.getCurrentAbility();
         if (currentAbility == null || currentAbility.requiresRightClick()) return;
+
         if (PlayerAbilityInUseCache.contains(currentAbility.getName(), player.getName())) {
             impulse(player, event.getEntity());
             Bukkit.getScheduler().runTaskLater(DungeonWeaponsPlugin.getInstance(), () -> {
@@ -114,17 +154,18 @@ public class WeaponListener implements Listener {
 
         WeaponAbility ability = weapon.getCurrentAbility();
         if (ability == null) {
-            Component message = MessageText.create()
+            Component message = KMessageText.create()
                     .text("Você não possui nenhuma habilidade ativa no momento").color(56, 131, 194)
                     .build();
-            Message.Chat.send(player, message);
+            KMessage.Chat.send(player, message);
             return;
         }
-        Component message = MessageText.create()
-                .text("Habilidade ativada: ").color(56, 131, 194)
-                .text(ability.getName()).color(78, 166, 240)
-                .build();
-        Message.ActionBar.send(player, message);
+        Component message = KGradient.apply("Habilidade ativa: ", KGradient.BluesAndCyans.ROYAL.start(),
+                        KGradient.BluesAndCyans.CRYSTAL.end(), false)
+                .append(KGradient.apply(ability.getName(), KGradient.MultiColor.CANDY.start(),
+                        KGradient.PurplesAndMagenta.ELDRITCH.end(), true));
+
+        KMessage.ActionBar.send(player, message);
     }
 
     private void impulse(Player player, Entity entity) {
@@ -135,5 +176,6 @@ public class WeaponListener implements Listener {
         direction.setY(0.2);
         entity.setVelocity(direction);
     }
+
 
 }

@@ -13,15 +13,14 @@ import java.util.UUID;
 @Getter
 @Setter
 public class WeaponData {
-    public UUID id;
-    public Component displayName;
-    public String type;
-    public List<String> abilities;
-    public String currentAbility;
-    public List<String> availableAbilities;
-    public WeaponParticleMetadata particleMetadata;
-    public Material material;
-    public int version = 1;
+    private UUID id;
+    private Component displayName;
+    private String type;
+    private List<String> abilities;
+    private String currentAbility;
+    private List<String> availableAbilities;
+    private WeaponParticleMetadata particleMetadata;
+    private Material material;
 
     public WeaponData(Weapon weapon) {
         this.id = weapon.getId();

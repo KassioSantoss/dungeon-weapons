@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CooldownUtils {
+public class KCooldownUtils {
 
     // Mapa de cooldowns agrupado por chave (ex: "fireball:playerUUID")
     private static final Map<String, Long> cooldowns = new ConcurrentHashMap<>();

@@ -1,6 +1,5 @@
 package brcomkassin.dungeonWeapons.registry;
 
-import brcomkassin.dungeonWeapons.utils.ColoredLogger;
 import brcomkassin.dungeonWeapons.weapon.item.BigBertha;
 import brcomkassin.dungeonWeapons.weapon.item.RoyalSword;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
@@ -24,7 +23,6 @@ public class WeaponRegistry {
     }
 
     public static Weapon getType(String type) {
-        ColoredLogger.info("ïnformaçoes sobre o supplier: " + WEAPON_SUPPLIERS);
         Supplier<Weapon> supplier = WEAPON_SUPPLIERS.get(type.toUpperCase(Locale.ROOT));
         return supplier != null ? supplier.get() : null;
     }

@@ -1,6 +1,6 @@
 package brcomkassin.dungeonWeapons.weapon;
 
-import brcomkassin.dungeonWeapons.utils.PDCUtil;
+import brcomkassin.dungeonWeapons.utils.KPDCUtil;
 import brcomkassin.dungeonWeapons.weapon.item.BigBertha;
 import brcomkassin.dungeonWeapons.weapon.item.RoyalSword;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +25,7 @@ public enum WeaponType {
     public static Weapon fromItem(ItemStack item) {
         if (item == null) return null;
 
-        String type = PDCUtil.readPDC(item, WeaponIds.WEAPON_TYPE_KEY);
+        String type = KPDCUtil.readPDC(item, WeaponIds.WEAPON_TYPE_KEY);
 
         if (type == null) return null;
 

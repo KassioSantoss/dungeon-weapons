@@ -13,4 +13,8 @@ public interface WeaponAbility {
         return false;
     }
 
+    default boolean requiresTarget() {
+        return false;
+    }
+
 }

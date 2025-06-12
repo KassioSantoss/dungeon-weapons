@@ -11,19 +11,19 @@ import net.kyori.adventure.text.format.TextDecoration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageText {
+public class KMessageText {
 
     private final List<Component> parts = new ArrayList<>();
     private MessagePart current;
 
-    private MessageText() {
+    private KMessageText() {
     }
 
-    public static MessageText create() {
-        return new MessageText();
+    public static KMessageText create() {
+        return new KMessageText();
     }
 
-    public MessageText text(Component component) {
+    public KMessageText text(Component component) {
         if (current != null) {
             parts.add(current.build());
         }
@@ -32,8 +32,7 @@ public class MessageText {
         return this;
     }
 
-
-    public MessageText text(String content) {
+    public KMessageText text(String content) {
         if (current != null) {
             parts.add(current.build());
         }
@@ -41,38 +40,43 @@ public class MessageText {
         return this;
     }
 
-    public MessageText color(int r, int g, int b) {
-        current.color(TextColor.color(r, g, b));
+    public KMessageText color(int r, int g, int b) {
+        if (current != null) current.color(TextColor.color(r, g, b));
         return this;
     }
 
-    public MessageText bold() {
-        current.bold();
+    public KMessageText color(TextColor textColor) {
+        if (current != null) current.color(textColor);
         return this;
     }
 
-    public MessageText italic() {
-        current.italic();
+    public KMessageText bold() {
+        if (current != null) current.bold();
         return this;
     }
 
-    public MessageText underline() {
-        current.underline();
+    public KMessageText italic() {
+        if (current != null) current.italic();
         return this;
     }
 
-    public MessageText strikethrough() {
-        current.strikethrough();
+    public KMessageText underline() {
+        if (current != null) current.underline();
         return this;
     }
 
-    public MessageText hover(String hoverText) {
-        current.hover(hoverText);
+    public KMessageText strikethrough() {
+        if (current != null) current.strikethrough();
         return this;
     }
 
-    public MessageText click(String command) {
-        current.click(command);
+    public KMessageText hover(String hoverText) {
+        if (current != null) current.hover(hoverText);
+        return this;
+    }
+
+    public KMessageText click(String command) {
+        if (current != null) current.click(command);
         return this;
     }
 
@@ -86,9 +90,9 @@ public class MessageText {
 
     private static class MessagePart {
         private final TextComponent.Builder builder;
-        private final MessageText parent;
+        private final KMessageText parent;
 
-        public MessagePart(String text, MessageText parent) {
+        public MessagePart(String text, KMessageText parent) {
             this.builder = Component.text().content(text);
             this.parent = parent;
         }

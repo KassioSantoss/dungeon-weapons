@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-public class PDCUtil {
+public class KPDCUtil {
 
     public static ItemStack savePDC(ItemStack itemStack, NamespacedKey key, String value) {
         ItemMeta meta = itemStack.getItemMeta();

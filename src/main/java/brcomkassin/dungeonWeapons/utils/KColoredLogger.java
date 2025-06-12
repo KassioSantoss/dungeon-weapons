@@ -5,7 +5,7 @@ import org.bukkit.Bukkit;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ColoredLogger {
+public class KColoredLogger {
 
     private static final Map<Character, String> COLOR_CODES = new HashMap<>();
 

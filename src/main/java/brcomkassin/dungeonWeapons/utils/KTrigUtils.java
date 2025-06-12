@@ -1,15 +1,22 @@
 package brcomkassin.dungeonWeapons.utils;
 
+import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class TrigUtils {
+public final class KTrigUtils {
 
-    private TrigUtils() {
+    private KTrigUtils() {
         // Utility class — no instantiation
     }
 
@@ -48,6 +55,7 @@ public final class TrigUtils {
             center.getWorld().spawnParticle(particle, loc, 1, 0, 0, 0, 0);
         }
     }
+
     public static void spawnCircleParticles(Location center, double radius, int points, Particle.DustOptions dustOptions) {
         double increment = 2 * Math.PI / points;
         Particle particle = Particle.DUST;
@@ -57,7 +65,7 @@ public final class TrigUtils {
             double z = center.getZ() + radius * Math.sin(angle);
 
             Location loc = new Location(center.getWorld(), x, center.getY(), z);
-            center.getWorld().spawnParticle(particle, loc, 1,dustOptions);
+            center.getWorld().spawnParticle(particle, loc, 1, dustOptions);
         }
     }
 
@@ -67,7 +75,7 @@ public final class TrigUtils {
      * @param center Localização central (base da espiral)
      * @param radius Raio da espiral
      * @param height Altura total da espiral
-     * @param coils Número de voltas (coils)
+     * @param coils  Número de voltas (coils)
      * @param points Quantidade total de pontos
      * @return Lista de Location correspondentes aos pontos da espiral
      */
@@ -129,4 +137,64 @@ public final class TrigUtils {
     public static double distance3D(Location a, Location b) {
         return a.distance(b);
     }
+
+    public static void drawParticleLine(Entity entity, Entity target, WeaponParticleMetadata particle, double spacing) {
+        Location startPoint = entity.getLocation().add(0, 1, 0);
+        Location endPoint = target.getLocation().add(0, 1, 0);
+        World world = startPoint.getWorld();
+
+        Particle.DustOptions dustOptions = new Particle.DustOptions(particle.getColor(), 1);
+
+        if (world == null || !world.equals(endPoint.getWorld())) {
+            return;
+        }
+
+        double distance = startPoint.distance(endPoint);
+
+        if (distance < spacing) {
+            return;
+        }
+
+        double increment = spacing / distance;
+
+        for (double t = 0; t <= 1.0; t += increment) {
+            double x = startPoint.getX() * (1 - t) + endPoint.getX() * t;
+            double y = startPoint.getY() * (1 - t) + endPoint.getY() * t;
+            double z = startPoint.getZ() * (1 - t) + endPoint.getZ() * t;
+
+            Location particleLocation = new Location(world, x, y, z);
+
+            world.spawnParticle(particle.getType(), particleLocation, 1, 0, 0, 0, 0, dustOptions);
+        }
+    }
+
+    /**
+     * Obtem a localização do alvo com base na localização do jogador e na distância máxima.
+     */
+    public static Location getTargetLocation(Player player, double maxRange) {
+        World world = player.getWorld();
+        Location eyeLocation = player.getEyeLocation();
+        Vector direction = eyeLocation.getDirection();
+
+        RayTraceResult result = world.rayTraceBlocks(
+                eyeLocation,
+                direction,
+                maxRange,
+                FluidCollisionMode.NEVER,
+                true
+        );
+
+        Location targetLocation;
+
+        if (result != null && result.getHitBlock() != null) {
+            Block hitBlock = result.getHitBlock();
+            targetLocation = hitBlock.getLocation();
+        } else {
+
+            Location endPoint = eyeLocation.add(direction.multiply(maxRange));
+            targetLocation = world.getHighestBlockAt(endPoint).getLocation();
+        }
+        return targetLocation.add(0.5, 0, 0.5);
+    }
+
 }

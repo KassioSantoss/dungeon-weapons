@@ -2,6 +2,7 @@ package brcomkassin.dungeonWeapons.event;
 
 import brcomkassin.dungeonWeapons.weapon.Weapon;
 import lombok.Getter;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -15,12 +16,28 @@ public class WeaponUseEvent extends Event implements Cancellable {
 
     private final Player player;
     private final Entity target;
+    private final Location location;
     private final Weapon weapon;
     private boolean cancelled;
+
+    public WeaponUseEvent(Player player, Entity target, Location location, Weapon weapon) {
+        this.player = player;
+        this.target = target;
+        this.location = location;
+        this.weapon = weapon;
+    }
 
     public WeaponUseEvent(Player player, Entity target, Weapon weapon) {
         this.player = player;
         this.target = target;
+        this.location = null;
+        this.weapon = weapon;
+    }
+
+    public WeaponUseEvent(Player player, Location location, Weapon weapon) {
+        this.player = player;
+        this.target = null;
+        this.location = location;
         this.weapon = weapon;
     }
 

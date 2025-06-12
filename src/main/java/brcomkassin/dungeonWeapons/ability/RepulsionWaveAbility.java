@@ -1,10 +1,11 @@
 package brcomkassin.dungeonWeapons.ability;
 
 import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
+import brcomkassin.dungeonWeapons.utils.KColoredLogger;
+import brcomkassin.dungeonWeapons.utils.KCooldownUtils;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
-import brcomkassin.dungeonWeapons.utils.CooldownUtils;
-import brcomkassin.dungeonWeapons.utils.TrigUtils;
+import brcomkassin.dungeonWeapons.utils.KTrigUtils;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -22,7 +23,7 @@ public class RepulsionWaveAbility implements WeaponAbility {
         Player player = abilityContext.player();
         WeaponParticleMetadata particleMetadata = abilityContext.weapon().getParticleMetadata();
         Particle.DustOptions dustOptions = new Particle.DustOptions(particleMetadata.getColor(), particleMetadata.getSize());
-        TrigUtils.spawnCircleParticles(player.getLocation().add(0, 0.4, 0), 3, 50, dustOptions);
+        KTrigUtils.spawnCircleParticles(player.getLocation().add(0, 0.4, 0), 3, 50, dustOptions);
 
         List<Entity> nearbyEntities = player.getNearbyEntities(4, 3, 4).stream()
                 .filter(e -> e instanceof LivingEntity)
@@ -32,7 +33,7 @@ public class RepulsionWaveAbility implements WeaponAbility {
                 .filter(entity -> entity.getType() != EntityType.ITEM_DISPLAY)
                 .toList();
 
-        CooldownUtils.setCooldown(this.getName() + ":" + player.getName(), 1000L * 5);
+        KCooldownUtils.setCooldown(this.getName() + ":" + player.getName(), 1000L * 5);
 
         if (nearbyEntities.isEmpty()) return;
 
@@ -83,6 +84,11 @@ public class RepulsionWaveAbility implements WeaponAbility {
 
     @Override
     public boolean requiresRightClick() {
+        return true;
+    }
+
+    @Override
+    public boolean requiresTarget() {
         return true;
     }
 }

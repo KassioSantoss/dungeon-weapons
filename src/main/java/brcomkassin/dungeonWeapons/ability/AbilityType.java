@@ -5,7 +5,9 @@ import lombok.Getter;
 @Getter
 public enum AbilityType {
     JUMP(new JumpAbility()),
-    REPULSION_WAVE(new RepulsionWaveAbility());
+    REPULSION_WAVE(new RepulsionWaveAbility()),
+    CONNECT_PLAYERS(new ConnectPlayersAbility()),
+    METEOR_FALL(new MeteorFallAbility());
 
     private final WeaponAbility ability;
 

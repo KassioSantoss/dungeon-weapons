@@ -1,18 +1,12 @@
 package brcomkassin.dungeonWeapons.command;
 
+
+import brcomkassin.dungeonWeapons.DungeonMessages;
+import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
 import brcomkassin.dungeonWeapons.ability.AbilityType;
-import brcomkassin.dungeonWeapons.utils.PDCUtil;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
-import brcomkassin.dungeonWeapons.weapon.WeaponIds;
-import brcomkassin.dungeonWeapons.weapon.WeaponType;
-import brcomkassin.dungeonWeapons.weapon.data.WeaponData;
 import brcomkassin.dungeonWeapons.manager.WeaponManager;
-import brcomkassin.dungeonWeapons.utils.ColoredLogger;
-import brcomkassin.dungeonWeapons.utils.Message;
-import brcomkassin.dungeonWeapons.utils.MessageText;
-import brcomkassin.dungeonWeapons.weapon.data.WeaponSerializer;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import brcomkassin.dungeonWeapons.weapon.WeaponType;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -21,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,20 +23,21 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) return true;
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Este comando só pode ser usado por jogadores.");
+            return true;
+        }
 
         if (args.length < 1) {
-            player.sendMessage(Component.text("Uso: /weapon <give|ability>").color(NamedTextColor.RED));
+            player.sendMessage(DungeonMessages.error("Uso: /weapon <give|ability>"));
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "give" -> handleGive(player, args);
             case "ability" -> handleAbility(player, args);
-            case "pdc" -> Message.Chat.send(player, "" +
-                    player.getInventory().getItemInMainHand().getPersistentDataContainer().getKeys());
-            default ->
-                    player.sendMessage(Component.text("Subcomando desconhecido. Use give ou ability.").color(NamedTextColor.RED));
+            case "test" -> BlockGlowService.getInstance(DungeonWeaponsPlugin.getInstance()).spawnBlock(player);
+            default -> player.sendMessage(DungeonMessages.error("Subcomando desconhecido. Use <give|ability>."));
         }
 
         return true;
@@ -51,80 +45,62 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
 
     private void handleGive(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(Component.text("Uso: /weapon give <id>").color(NamedTextColor.RED));
+            player.sendMessage(DungeonMessages.error("Uso: /weapon give <id_da_arma>"));
             return;
         }
 
         Weapon weapon = WeaponManager.of().getWeapon(args[1].toUpperCase());
 
         if (weapon == null) {
-            player.sendMessage(Component.text("Arma inválida.").color(NamedTextColor.RED));
+            player.sendMessage(DungeonMessages.error("Arma inválida."));
             return;
         }
 
         weapon.savePDC(player);
 
-        Component component = MessageText.create().text("Você recebeu o ").color(0, 160, 217).bold()
-                .text(weapon.getDisplayName())
-                .text(" com sucesso!").color(0, 160, 217).bold()
-                .build();
-
-        player.sendMessage(component);
+        player.sendMessage(DungeonMessages.giveWeaponSuccess(weapon));
     }
 
     private void handleAbility(Player player, String[] args) {
         if (args.length < 3) {
-            player.sendMessage(Component.text("Uso: /weapon ability <add|remove> <ability>").color(NamedTextColor.RED));
+            player.sendMessage(DungeonMessages.error("Uso: /weapon ability <add|remove> <habilidade>"));
             return;
         }
 
         String action = args[1].toLowerCase();
         String abilityName = args[2].toUpperCase();
 
-        AbilityType abilityType = AbilityType.fromName(abilityName);
-        if (abilityType == null) {
-            player.sendMessage(Component.text("Habilidade inválida: " + abilityName).color(NamedTextColor.RED));
+        AbilityType abilityType;
+        try {
+            abilityType = AbilityType.valueOf(abilityName);
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(DungeonMessages.error("Habilidade inválida: " + abilityName));
             return;
         }
 
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item.getType().isAir()) {
-            player.sendMessage(Component.text("Você precisa estar segurando uma arma.").color(NamedTextColor.RED));
+            player.sendMessage(DungeonMessages.error("Você precisa estar segurando uma arma."));
             return;
-        };
+        }
 
         Weapon weapon = WeaponManager.of().getWeapon(player.getInventory().getItemInMainHand());
 
         if (weapon == null) {
-            player.sendMessage(Component.text("Este item não é uma arma válida.").color(NamedTextColor.RED));
+            player.sendMessage(DungeonMessages.error("Este item não é uma arma válida."));
             return;
         }
 
         switch (action) {
             case "add" -> {
-                weapon.unlockAbilities(player, abilityType); // aqui o nome buga
-                Component component = MessageText.create().text("Habilidade ").color(0, 160, 217)
-                        .text(abilityType.name()).color(0, 160, 217)
-                        .text(" adicionada à ").color(0, 160, 217)
-                        .text(weapon.getDisplayName())
-                        .text(" com sucesso!").color(0, 160, 217)
-                        .build();
-                player.sendMessage(component);
+                weapon.unlockAbilities(player, abilityType);
+                player.sendMessage(DungeonMessages.abilitySuccess("adicionada", abilityType.name(), weapon));
             }
-
             case "remove" -> {
                 weapon.removeAbility(player, abilityType);
-                Component component = MessageText.create().text("Habilidade ").color(0, 160, 217)
-                        .text(abilityType.name()).color(0, 160, 217)
-                        .text(" removida da ").color(0, 160, 217)
-                        .text(weapon.getDisplayName())
-                        .text(" com sucesso!").color(0, 160, 217)
-                        .build();
-                player.sendMessage(component);
+                player.sendMessage(DungeonMessages.abilitySuccess("removida", abilityType.name(), weapon));
             }
-
-            default ->
-                    player.sendMessage(Component.text("Ação inválida. Use add ou remove.").color(NamedTextColor.RED));
+            default -> player.sendMessage(DungeonMessages.error("Ação inválida. Use <add|remove>."));
         }
     }
 

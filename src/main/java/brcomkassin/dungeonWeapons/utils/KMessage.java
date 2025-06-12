@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 
-public interface Message {
+public interface KMessage {
     class Chat {
         public static void send(Player player, String... message) {
             Arrays.stream(message)

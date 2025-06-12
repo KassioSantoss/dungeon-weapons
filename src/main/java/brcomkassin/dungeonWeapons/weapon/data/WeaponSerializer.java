@@ -1,9 +1,9 @@
 package brcomkassin.dungeonWeapons.weapon.data;
 
-import brcomkassin.dungeonWeapons.utils.PDCUtil;
+import brcomkassin.dungeonWeapons.utils.KPDCUtil;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
 import brcomkassin.dungeonWeapons.weapon.WeaponIds;
-import brcomkassin.dungeonWeapons.utils.ComponentAdapter;
+import brcomkassin.dungeonWeapons.utils.KComponentAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class WeaponSerializer {
     private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(Component.class, ComponentAdapter.INSTANCE)
+            .registerTypeAdapter(Component.class, KComponentAdapter.INSTANCE)
             .create();
 
     public static String serialize(Weapon weapon) {
@@ -34,11 +34,11 @@ public class WeaponSerializer {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return null;
 
-        String key = PDCUtil.readPDC(item, WeaponIds.WEAPON_ID_KEY);
+        String key = KPDCUtil.readPDC(item, WeaponIds.WEAPON_ID_KEY);
 
         if (key == null) return null;
 
-        String json = PDCUtil.readPDC(item, WeaponIds.WEAPON_KEY);
+        String json = KPDCUtil.readPDC(item, WeaponIds.WEAPON_KEY);
         if (json == null) return null;
         WeaponData deserialize = deserialize(json);
         return deserialize;

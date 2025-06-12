@@ -1,11 +1,11 @@
 package brcomkassin.dungeonWeapons.weapon;
 
-import brcomkassin.dungeonWeapons.utils.PDCUtil;
+import brcomkassin.dungeonWeapons.utils.KPDCUtil;
 import brcomkassin.dungeonWeapons.ability.AbilityType;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
 import brcomkassin.dungeonWeapons.ability.WeaponAbility;
-import brcomkassin.dungeonWeapons.utils.ColoredLogger;
-import brcomkassin.dungeonWeapons.utils.ItemBuilder;
+import brcomkassin.dungeonWeapons.utils.KColoredLogger;
+import brcomkassin.dungeonWeapons.utils.KItemBuilder;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponSerializer;
 import lombok.Getter;
@@ -44,21 +44,20 @@ public abstract class Weapon {
         this.particleMetadata = particleMetadata;
         this.availableAbilities = new ArrayList<>(availableAbilities);
 
-        this.weaponItem = ItemBuilder.of(material)
+        this.weaponItem = KItemBuilder.of(material)
                 .setName(displayName)
                 .build();
     }
 
     public void savePDC(Player player) {
         String serialize = WeaponSerializer.serialize(this);
-        this.weaponItem = PDCUtil.savePDC(weaponItem, WeaponIds.WEAPON_KEY, serialize);
-        this.weaponItem = PDCUtil.savePDC(weaponItem, WeaponIds.WEAPON_ID_KEY, id.toString());
-        ItemStack build = ItemBuilder.of(this.weaponItem)
+        this.weaponItem = KPDCUtil.savePDC(weaponItem, WeaponIds.WEAPON_KEY, serialize);
+        this.weaponItem = KPDCUtil.savePDC(weaponItem, WeaponIds.WEAPON_ID_KEY, id.toString());
+        ItemStack build = KItemBuilder.of(this.weaponItem)
                 .setName(displayName)
                 .build();
 
         player.getInventory().setItemInMainHand(build);
-        ColoredLogger.info("displayName: " + this.getDisplayName());
     }
 
     public void addAvailableAbility(AbilityType ability) {
@@ -67,7 +66,7 @@ public abstract class Weapon {
 
     public void unlockAbilities(Player player, AbilityType ability) {
         if (!availableAbilities.contains(ability)) {
-            ColoredLogger.error("[unlockAbilities]: Ability " + ability.getAbility().getName()
+            KColoredLogger.error("[unlockAbilities]: Ability " + ability.getAbility().getName()
                     + " not found in available abilities");
             return;
         }

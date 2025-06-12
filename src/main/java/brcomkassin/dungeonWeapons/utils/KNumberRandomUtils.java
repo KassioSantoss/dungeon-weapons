@@ -2,7 +2,7 @@ package brcomkassin.dungeonWeapons.utils;
 
 import java.util.Random;
 
-public class RandomUtils {
+public class KNumberRandomUtils {
     private static final Random RANDOM = new Random();
 
     /**

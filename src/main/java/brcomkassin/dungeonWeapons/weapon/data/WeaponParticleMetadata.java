@@ -30,7 +30,14 @@ public class WeaponParticleMetadata {
         }
 
         public Builder color(Color color) {
+            this.type = Particle.DUST;
             this.color = color;
+            return this;
+        }
+
+        public Builder color(int r, int g, int b) {
+            this.type = Particle.DUST;
+            this.color = Color.fromRGB(r, g, b);
             return this;
         }
 

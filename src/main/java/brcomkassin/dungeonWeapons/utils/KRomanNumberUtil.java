@@ -1,6 +1,6 @@
 package brcomkassin.dungeonWeapons.utils;
 
-public class RomanNumber {
+public class KRomanNumberUtil {
     private static final String[] roman = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
 
     public static String toRoman(int number) {

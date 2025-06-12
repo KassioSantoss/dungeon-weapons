@@ -1,9 +1,9 @@
 package brcomkassin.dungeonWeapons.ability;
 
 import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
+import brcomkassin.dungeonWeapons.utils.KCooldownUtils;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
-import brcomkassin.dungeonWeapons.utils.CooldownUtils;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -30,7 +30,7 @@ public class JumpAbility implements WeaponAbility {
         }
 
         AtomicInteger counter = new AtomicInteger(0);
-        CooldownUtils.setCooldown(this.getName() + ":" + player.getName(), 1000L * 5);
+        KCooldownUtils.setCooldown(this.getName() + ":" + player.getName(), 1000L * 5);
 
         new BukkitRunnable() {
             @Override
@@ -48,6 +48,11 @@ public class JumpAbility implements WeaponAbility {
     @Override
     public String getName() {
         return "Jump Ability";
+    }
+
+    @Override
+    public boolean requiresTarget() {
+        return true;
     }
 
     @Override

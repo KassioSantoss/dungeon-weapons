@@ -1,10 +1,10 @@
 package brcomkassin.dungeonWeapons.manager;
 
 import brcomkassin.dungeonWeapons.cache.WeaponCache;
-import brcomkassin.dungeonWeapons.utils.PDCUtil;
+import brcomkassin.dungeonWeapons.utils.KPDCUtil;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
 import brcomkassin.dungeonWeapons.weapon.WeaponIds;
-import brcomkassin.dungeonWeapons.weapon.WeaponInstance;
+import brcomkassin.dungeonWeapons.weapon.data.WeaponInstance;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponData;
 import brcomkassin.dungeonWeapons.registry.WeaponRegistry;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponSerializer;
@@ -41,7 +41,7 @@ public class WeaponManager {
     }
 
     public boolean isWeapon(ItemStack itemStack) {
-        return PDCUtil.hasPDC(itemStack, WeaponIds.WEAPON_KEY);
+        return KPDCUtil.hasPDC(itemStack, WeaponIds.WEAPON_KEY);
     }
 
 }

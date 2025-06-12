@@ -5,10 +5,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import java.lang.reflect.Type;
 
-public class ComponentAdapter implements JsonSerializer<Component>, JsonDeserializer<Component> {
-    public static final ComponentAdapter INSTANCE = new ComponentAdapter();
+public class KComponentAdapter implements JsonSerializer<Component>, JsonDeserializer<Component> {
+    public static final KComponentAdapter INSTANCE = new KComponentAdapter();
 
-    private ComponentAdapter() {}
+    private KComponentAdapter() {}
 
     @Override
     public Component deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
