@@ -65,6 +65,7 @@ public final class KItemBuilder {
 
     public KItemBuilder consume(Consumer<ItemStack> consumer) {
         consumer.accept(itemStack);
+
         return this;
     }
 

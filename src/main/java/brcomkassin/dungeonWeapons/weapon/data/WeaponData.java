@@ -1,7 +1,8 @@
 package brcomkassin.dungeonWeapons.weapon.data;
 
+import brcomkassin.dungeonWeapons.ability.AvailableAbilities;
+import brcomkassin.dungeonWeapons.ability.WeaponAbility;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
-import brcomkassin.dungeonWeapons.ability.AbilityType;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -15,7 +16,7 @@ import java.util.UUID;
 public class WeaponData {
     private UUID id;
     private Component displayName;
-    private String type;
+    private String genericType;
     private List<String> abilities;
     private String currentAbility;
     private List<String> availableAbilities;
@@ -26,10 +27,11 @@ public class WeaponData {
         this.id = weapon.getId();
         this.material = weapon.getWeaponItem().getType();
         this.displayName = weapon.getDisplayName();
-        this.type = weapon.getType().name();
-        this.abilities = weapon.getAbilities().stream().map(AbilityType::name).toList();
-        this.currentAbility = weapon.getCurrentAbility() != null ? weapon.getCurrentAbility().getType().name() : null;
-        this.availableAbilities = weapon.getAvailableAbilities().stream().map(AbilityType::name).toList();
+        this.genericType = weapon.getGenericType();
+        this.abilities = weapon.getAbilities().stream().map(WeaponAbility::getName)
+                .toList();
+        this.currentAbility = weapon.getCurrentAbility() != null ? weapon.getCurrentAbility().getName() : null;
+        this.availableAbilities = weapon.getAvailableAbilities().getAbilities().stream().map(WeaponAbility::getName).toList();
         this.particleMetadata = weapon.getParticleMetadata();
     }
 
@@ -38,10 +40,11 @@ public class WeaponData {
         return "WeaponData{" +
                 "id='" + id + '\'' +
                 ", displayName='" + displayName + '\'' +
-                ", type='" + type + '\'' +
+                ", genericType='" + genericType + '\'' +
                 ", abilities=" + abilities +
                 ", currentAbility='" + currentAbility + '\'' +
                 ", availableAbilities=" + availableAbilities +
                 '}';
     }
+
 }

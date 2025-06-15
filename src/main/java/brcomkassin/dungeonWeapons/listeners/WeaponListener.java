@@ -1,7 +1,7 @@
 package brcomkassin.dungeonWeapons.listeners;
 
+import brcomkassin.dungeonWeapons.utils.KCooldownManagerUtils;
 import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
-import brcomkassin.dungeonWeapons.ability.AbilityType;
 import brcomkassin.dungeonWeapons.utils.*;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
 import brcomkassin.dungeonWeapons.cache.PlayerAbilityInUseCache;
@@ -12,28 +12,18 @@ import brcomkassin.dungeonWeapons.ability.WeaponAbility;
 import brcomkassin.dungeonWeapons.manager.WeaponManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class WeaponListener implements Listener {
 
@@ -62,8 +52,9 @@ public class WeaponListener implements Listener {
         Weapon weapon = event.getWeapon();
         WeaponAbility ability = event.getAbility();
 
-        if (KCooldownUtils.isOnCooldown(ability.getName() + ":" + player.getName())) {
-            double remaining = (double) KCooldownUtils.getRemaining(ability.getName() + ":" + player.getName()) / 1000;
+        if (KCooldownManagerUtils.isOnCooldown(player.getUniqueId(), KCooldownManagerUtils.CooldownType.ABILITY, ability.getName())) {
+            double remaining = KCooldownManagerUtils.getRemaining(player.getUniqueId(),
+                    KCooldownManagerUtils.CooldownType.ABILITY, ability.getName()) / 1000.0;
             KMessage.ActionBar.send(player, "&4Habilidade recarregando: &f" + KDecimalFormatUtil.format(remaining) + "s restantes");
             return;
         }
@@ -89,7 +80,7 @@ public class WeaponListener implements Listener {
 
         if (event.getHand() == EquipmentSlot.OFF_HAND) return;
 
-        Location location = KTrigUtils.getTargetLocation(player, 100);
+        Location location = KTrigUtils.getTargetLocation(player, 200);
         WeaponUseEvent useEvent = new WeaponUseEvent(player, location, weapon);
         Bukkit.getPluginManager().callEvent(useEvent);
     }
@@ -108,9 +99,7 @@ public class WeaponListener implements Listener {
         if (weapon == null) return;
 
         WeaponAbility currentAbility = weapon.getCurrentAbility();
-        if (currentAbility == null || !currentAbility.requiresRightClick() ||
-                currentAbility.getName().equals(AbilityType.METEOR_FALL.getAbility().getName()))
-            return;
+        if (currentAbility == null || !currentAbility.requiresRightClick() || !currentAbility.requiresTarget()) return;
 
         WeaponUseEvent useEvent = new WeaponUseEvent(player, target, weapon);
         Bukkit.getPluginManager().callEvent(useEvent);
@@ -160,10 +149,10 @@ public class WeaponListener implements Listener {
             KMessage.Chat.send(player, message);
             return;
         }
-        Component message = KGradient.apply("Habilidade ativa: ", KGradient.BluesAndCyans.ROYAL.start(),
-                        KGradient.BluesAndCyans.CRYSTAL.end(), false)
-                .append(KGradient.apply(ability.getName(), KGradient.MultiColor.CANDY.start(),
-                        KGradient.PurplesAndMagenta.ELDRITCH.end(), true));
+        Component message = KMessageText.create().text("Habilidade ativa: ")
+                .color(0, 138, 255)
+                .text(ability.getName()).color(217, 171, 0)
+                .build();
 
         KMessage.ActionBar.send(player, message);
     }
@@ -176,6 +165,5 @@ public class WeaponListener implements Listener {
         direction.setY(0.2);
         entity.setVelocity(direction);
     }
-
 
 }

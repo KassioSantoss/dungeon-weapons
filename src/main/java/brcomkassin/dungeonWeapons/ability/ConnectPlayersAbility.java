@@ -2,6 +2,7 @@ package brcomkassin.dungeonWeapons.ability;
 
 import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
+import brcomkassin.dungeonWeapons.utils.KCooldownManagerUtils;
 import brcomkassin.dungeonWeapons.utils.KTrigUtils;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
 import org.bukkit.entity.Entity;
@@ -11,10 +12,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class ConnectPlayersAbility implements WeaponAbility {
 
     @Override
-    public void execute(AbilityContext abilityContext) {
-        Player player = abilityContext.player();
-        Entity target = abilityContext.target();
-        WeaponParticleMetadata particleMetadata = abilityContext.weapon().getParticleMetadata();
+    public void execute(AbilityContext context) {
+        Player player = context.player();
+        Entity target = context.target();
+        WeaponParticleMetadata particleMetadata = context.weapon().getParticleMetadata();
+
+        KCooldownManagerUtils.apply(player.getUniqueId(), KCooldownManagerUtils.CooldownType.ABILITY,
+                context.weapon().getCurrentAbility().getName(), 1000L * 5L);
 
         new BukkitRunnable() {
             int ticks = 0;
@@ -33,7 +37,7 @@ public class ConnectPlayersAbility implements WeaponAbility {
 
     @Override
     public String getName() {
-        return "Connect Players";
+        return "Connect_Players";
     }
 
     @Override
@@ -42,7 +46,8 @@ public class ConnectPlayersAbility implements WeaponAbility {
     }
 
     @Override
-    public AbilityType getType() {
-        return AbilityType.CONNECT_PLAYERS;
+    public boolean requiresRightClick() {
+        return true;
     }
+
 }

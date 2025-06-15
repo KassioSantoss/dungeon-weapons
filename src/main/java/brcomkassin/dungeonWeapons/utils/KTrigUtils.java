@@ -1,13 +1,13 @@
 package brcomkassin.dungeonWeapons.utils;
 
+import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
-import org.bukkit.FluidCollisionMode;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -195,6 +195,37 @@ public final class KTrigUtils {
             targetLocation = world.getHighestBlockAt(endPoint).getLocation();
         }
         return targetLocation.add(0.5, 0, 0.5);
+    }
+
+    public static void spawnFallingBlocksCircle(Location center, double radius, int count, double yOffset, Player caster) {
+        World world = center.getWorld();
+        if (world == null) return;
+
+        for (int i = 0; i < count; i++) {
+            double angle = (2 * Math.PI / count) * i;
+            double x = center.getX() + radius * Math.cos(angle);
+            double z = center.getZ() + radius * Math.sin(angle);
+            double y = center.getY() + yOffset;
+
+            Location spawnLoc = new Location(world, x, y, z);
+            Location blockBelow = spawnLoc.clone().subtract(0, 1, 0);
+
+            if (!blockBelow.getBlock().getType().isSolid()) continue;
+
+            Material material = blockBelow.getBlock().getType();
+
+            if (material == Material.AIR || material == Material.BEDROCK) continue;
+
+            FallingBlock falling = world.spawnFallingBlock(spawnLoc, blockBelow.getBlock().getBlockData());
+
+            falling.setMetadata("visual-falling-block", new FixedMetadataValue(DungeonWeaponsPlugin.getInstance(), true));
+            falling.setDropItem(false);
+            falling.setHurtEntities(false);
+            falling.setGravity(true);
+            falling.setInvulnerable(true);
+
+            falling.setVelocity(new Vector(0, 0.5 + Math.random() * 0.4, 0));
+        }
     }
 
 }

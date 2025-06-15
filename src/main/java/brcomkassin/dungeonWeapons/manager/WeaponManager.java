@@ -36,7 +36,7 @@ public class WeaponManager {
     }
 
     public Weapon getWeapon(String type) {
-        Weapon weapon = WeaponRegistry.getType(type);
+        Weapon weapon = WeaponRegistry.create(type);
         return weapon;
     }
 

@@ -1,23 +1,23 @@
 package brcomkassin.dungeonWeapons.command;
 
-
 import brcomkassin.dungeonWeapons.DungeonMessages;
-import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
-import brcomkassin.dungeonWeapons.ability.AbilityType;
+import brcomkassin.dungeonWeapons.registry.AbilityRegistry;
+import brcomkassin.dungeonWeapons.ability.WeaponAbility;
+import brcomkassin.dungeonWeapons.registry.WeaponRegistry;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
 import brcomkassin.dungeonWeapons.manager.WeaponManager;
-import brcomkassin.dungeonWeapons.weapon.WeaponType;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import java.util.Arrays;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class WeaponCommand implements CommandExecutor, TabExecutor {
 
@@ -36,7 +36,25 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
         switch (args[0].toLowerCase()) {
             case "give" -> handleGive(player, args);
             case "ability" -> handleAbility(player, args);
-            case "test" -> BlockGlowService.getInstance(DungeonWeaponsPlugin.getInstance()).spawnBlock(player);
+            case "spawn" -> {
+                if (!player.isOp()) return false;
+                final int numberOfEntities = 30;
+                final double radius = 5.0;
+                final Location centerLocation = player.getLocation();
+
+                for (int i = 0; i < numberOfEntities; i++) {
+                    final double angle = 2 * Math.PI * i / numberOfEntities;
+
+                    final double x = centerLocation.getX() + radius * Math.cos(angle);
+                    final double z = centerLocation.getZ() + radius * Math.sin(angle);
+
+                    final double y = centerLocation.getY();
+
+                    final Location spawnLocation = new Location(player.getWorld(), x, y, z);
+
+                    player.getWorld().spawnEntity(spawnLocation.add(0, 1, 0), EntityType.CHICKEN);
+                }
+            }
             default -> player.sendMessage(DungeonMessages.error("Subcomando desconhecido. Use <give|ability>."));
         }
 
@@ -68,11 +86,11 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
         }
 
         String action = args[1].toLowerCase();
-        String abilityName = args[2].toUpperCase();
+        String abilityName = args[2];
 
-        AbilityType abilityType;
+        WeaponAbility ability;
         try {
-            abilityType = AbilityType.valueOf(abilityName);
+            ability = AbilityRegistry.getAbility(abilityName);
         } catch (IllegalArgumentException e) {
             player.sendMessage(DungeonMessages.error("Habilidade inválida: " + abilityName));
             return;
@@ -93,12 +111,21 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
 
         switch (action) {
             case "add" -> {
-                weapon.unlockAbilities(player, abilityType);
-                player.sendMessage(DungeonMessages.abilitySuccess("adicionada", abilityType.name(), weapon));
+                boolean unlockAbilities = weapon.unlockAbilities(player, ability);
+
+                if (unlockAbilities) {
+                    player.sendMessage(DungeonMessages.abilitySuccess("desbloqueada", ability.getName(), weapon));
+                } else {
+                    player.sendMessage(DungeonMessages.error("Sua espada não tem essa habilidade."));
+                }
             }
             case "remove" -> {
-                weapon.removeAbility(player, abilityType);
-                player.sendMessage(DungeonMessages.abilitySuccess("removida", abilityType.name(), weapon));
+                boolean removeAbility = weapon.removeAbility(player, ability);
+                if (removeAbility) {
+                    player.sendMessage(DungeonMessages.abilitySuccess("removida", ability.getName(), weapon));
+                } else {
+                    player.sendMessage(DungeonMessages.error("Sua espada nao tem essa habilidade."));
+                }
             }
             default -> player.sendMessage(DungeonMessages.error("Ação inválida. Use <add|remove>."));
         }
@@ -113,9 +140,7 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
         if (args.length == 2) {
             switch (args[0].toLowerCase()) {
                 case "give" -> {
-                    return Arrays.stream(WeaponType.values()).map(Enum::name)
-                            .map(String::toLowerCase)
-                            .collect(Collectors.toList());
+                    return WeaponRegistry.getRegisteredTypes().stream().toList();
                 }
                 case "ability" -> {
                     return List.of("add", "remove");
@@ -124,12 +149,10 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
         }
 
         if (args.length == 3 && args[0].equalsIgnoreCase("ability")) {
-            return Arrays.stream(AbilityType.values())
-                    .map(Enum::name)
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toList());
+            return AbilityRegistry.getAbilities().values().stream().map(WeaponAbility::getName).toList();
         }
 
         return List.of();
     }
+
 }

@@ -1,30 +1,37 @@
 package brcomkassin.dungeonWeapons.registry;
 
-import brcomkassin.dungeonWeapons.weapon.item.BigBertha;
-import brcomkassin.dungeonWeapons.weapon.item.RoyalSword;
+import brcomkassin.dungeonWeapons.utils.KPDCUtil;
+import brcomkassin.dungeonWeapons.weapon.WeaponIds;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
-import brcomkassin.dungeonWeapons.weapon.WeaponType;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 import java.util.function.Supplier;
+public final class WeaponRegistry {
 
-public class WeaponRegistry {
-    private static final Map<String, Supplier<Weapon>> WEAPON_SUPPLIERS = new ConcurrentHashMap<>();
+    private static final Map<String, Supplier<Weapon>> REGISTERED_WEAPONS = new HashMap<>();
 
-    static {
-        register(WeaponType.BIG_BERTHA.name(), BigBertha::new);
-        register(WeaponType.ROYAL_SWORD.name(), RoyalSword::new);
+    private WeaponRegistry() {}
+
+    public static void register(String name, Supplier<Weapon> supplier) {
+        if (REGISTERED_WEAPONS.containsKey(name.toLowerCase())) {
+            throw new IllegalArgumentException("WeaponType '" + name + "' already registered.");
+        }
+        REGISTERED_WEAPONS.put(name.toLowerCase(), supplier);
     }
 
-    public static void register(String type, Supplier<Weapon> supplier) {
-        WEAPON_SUPPLIERS.put(type.toUpperCase(Locale.ROOT), supplier);
-    }
-
-    public static Weapon getType(String type) {
-        Supplier<Weapon> supplier = WEAPON_SUPPLIERS.get(type.toUpperCase(Locale.ROOT));
+    public static Weapon create(String name) {
+        Supplier<Weapon> supplier = REGISTERED_WEAPONS.get(name.toLowerCase());
         return supplier != null ? supplier.get() : null;
     }
 
+    public static Weapon fromItem(ItemStack item) {
+        if (item == null) return null;
+        String type = KPDCUtil.readPDC(item, WeaponIds.WEAPON_TYPE_KEY);
+        return type != null ? create(type) : null;
+    }
+
+    public static Set<String> getRegisteredTypes() {
+        return Collections.unmodifiableSet(REGISTERED_WEAPONS.keySet());
+    }
 }

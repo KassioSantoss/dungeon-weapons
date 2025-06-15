@@ -1,9 +1,10 @@
 package brcomkassin.dungeonWeapons.weapon;
 
+import brcomkassin.dungeonWeapons.registry.AbilityRegistry;
+import brcomkassin.dungeonWeapons.ability.AvailableAbilities;
 import brcomkassin.dungeonWeapons.utils.KPDCUtil;
-import brcomkassin.dungeonWeapons.ability.AbilityType;
-import brcomkassin.dungeonWeapons.context.AbilityContext;
 import brcomkassin.dungeonWeapons.ability.WeaponAbility;
+import brcomkassin.dungeonWeapons.context.AbilityContext;
 import brcomkassin.dungeonWeapons.utils.KColoredLogger;
 import brcomkassin.dungeonWeapons.utils.KItemBuilder;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
@@ -23,26 +24,26 @@ public abstract class Weapon {
 
     protected Component displayName;
     protected UUID id;
-    protected WeaponType type;
-    protected Set<AbilityType> abilities;
+    protected String genericType;
+    protected Set<WeaponAbility> abilities;
     protected ItemStack weaponItem;
     protected WeaponParticleMetadata particleMetadata;
     protected WeaponAbility currentAbility;
-    protected List<AbilityType> availableAbilities;
+    protected AvailableAbilities availableAbilities;
 
-    public Weapon(String name, UUID id, WeaponType type, Material material,
-                  WeaponParticleMetadata particleMetadata, List<AbilityType> availableAbilities) {
-        this(Component.text(name), id, type, material, particleMetadata, availableAbilities);
+    public Weapon(String name,  String genericType, Material material,
+                  WeaponParticleMetadata particleMetadata, AvailableAbilities availableAbilities) {
+        this(Component.text(name), genericType, material, particleMetadata, availableAbilities);
     }
 
-    public Weapon(Component displayName, UUID id, WeaponType type, Material material,
-                  WeaponParticleMetadata particleMetadata, List<AbilityType> availableAbilities) {
+    public Weapon(Component displayName,  String genericType, Material material,
+                  WeaponParticleMetadata particleMetadata, AvailableAbilities availableAbilities) {
         this.displayName = displayName;
-        this.id = id != null ? id : UUID.randomUUID();
-        this.type = type;
+        this.id = UUID.randomUUID();
+        this.genericType = genericType;
         this.abilities = new LinkedHashSet<>();
         this.particleMetadata = particleMetadata;
-        this.availableAbilities = new ArrayList<>(availableAbilities);
+        this.availableAbilities = availableAbilities;
 
         this.weaponItem = KItemBuilder.of(material)
                 .setName(displayName)
@@ -60,38 +61,39 @@ public abstract class Weapon {
         player.getInventory().setItemInMainHand(build);
     }
 
-    public void addAvailableAbility(AbilityType ability) {
-        this.availableAbilities.add(ability);
+    public void addAvailableAbility(WeaponAbility ability) {
+        this.availableAbilities.addAbility(ability);
     }
 
-    public void unlockAbilities(Player player, AbilityType ability) {
-        if (!availableAbilities.contains(ability)) {
-            KColoredLogger.error("[unlockAbilities]: Ability " + ability.getAbility().getName()
+    public boolean unlockAbilities(Player player, WeaponAbility ability) {
+        if (!availableAbilities.containsAbility(ability)) {
+            KColoredLogger.error("[unlockAbilities]: Ability " + AbilityRegistry.getAbility(ability.getName()).getName()
                     + " not found in available abilities");
-            return;
+            return false;
         }
         addAbility(player, ability);
+        return true;
     }
 
-    private void addAbility(Player player, AbilityType ability) {
-        if (abilities.contains(ability)) return;
-        this.abilities.add(ability);
+    private void addAbility(Player player, WeaponAbility weaponAbility) {
+        if (abilities.contains(weaponAbility)) return;
+        this.abilities.add(weaponAbility);
         if (currentAbility == null) {
-            this.currentAbility = ability.getAbility();
+            this.currentAbility = weaponAbility;
         }
         savePDC(player);
     }
 
-    public void removeAbility(Player player, AbilityType ability) {
-        if (!abilities.contains(ability)) return;
+    public boolean removeAbility(Player player, WeaponAbility ability) {
+        if (!abilities.contains(ability)) return false;
         this.abilities.remove(ability);
-        if (currentAbility != null && currentAbility.equals(ability.getAbility())) {
+        if (currentAbility != null && currentAbility.equals(ability)) {
             this.currentAbility = abilities.stream()
                     .findFirst()
-                    .map(AbilityType::getAbility)
-                    .orElse(null);
+                    .get();
         }
         savePDC(player);
+        return true;
     }
 
     public void removeAllAbilities() {
@@ -112,13 +114,13 @@ public abstract class Weapon {
     public void cycleAbility() {
         if (!hasAbility()) return;
 
-        List<AbilityType> ordered = new ArrayList<>(abilities);
-        if (currentAbility == null || !abilities.contains(currentAbility.getType())) {
-            currentAbility = ordered.get(0).getAbility();
+        List<WeaponAbility> ordered = new ArrayList<>(abilities);
+        if (currentAbility == null || !abilities.contains(currentAbility)) {
+            currentAbility = ordered.get(0);
         } else {
-            int index = ordered.indexOf(currentAbility.getType());
+            int index = ordered.indexOf(currentAbility);
             int nextIndex = (index + 1) % ordered.size();
-            currentAbility = ordered.get(nextIndex).getAbility();
+            currentAbility = ordered.get(nextIndex);
         }
     }
 
@@ -126,7 +128,7 @@ public abstract class Weapon {
     public String toString() {
         return "Weapon{" +
                 "id='" + id + '\'' +
-                ", type=" + type +
+                ", genericType=" + genericType +
                 ", abilities=" + abilities +
                 '}';
     }

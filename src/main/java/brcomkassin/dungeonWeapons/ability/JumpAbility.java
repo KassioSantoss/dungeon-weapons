@@ -1,7 +1,7 @@
 package brcomkassin.dungeonWeapons.ability;
 
+import brcomkassin.dungeonWeapons.utils.KCooldownManagerUtils;
 import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
-import brcomkassin.dungeonWeapons.utils.KCooldownUtils;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
 import org.bukkit.Particle;
@@ -15,10 +15,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class JumpAbility implements WeaponAbility {
 
     @Override
-    public void execute(AbilityContext abilityContext) {
-        Entity target = abilityContext.target();
-        Player player = abilityContext.player();
-        WeaponParticleMetadata particleMetadata = abilityContext.weapon().getParticleMetadata();
+    public void execute(AbilityContext context) {
+        Entity target = context.target();
+        Player player = context.player();
+        WeaponParticleMetadata particleMetadata = context.weapon().getParticleMetadata();
         Particle.DustOptions dustOptions = new Particle.DustOptions(particleMetadata.getColor(), particleMetadata.getSize());
         target.setVelocity(new Vector(0, 1.1, 0));
         player.setVelocity(new Vector(0, 1, 0));
@@ -30,7 +30,9 @@ public class JumpAbility implements WeaponAbility {
         }
 
         AtomicInteger counter = new AtomicInteger(0);
-        KCooldownUtils.setCooldown(this.getName() + ":" + player.getName(), 1000L * 5);
+
+        KCooldownManagerUtils.apply(player.getUniqueId(), KCooldownManagerUtils.CooldownType.ABILITY,
+                context.weapon().getCurrentAbility().getName(), 1000L * 5L);
 
         new BukkitRunnable() {
             @Override
@@ -47,7 +49,7 @@ public class JumpAbility implements WeaponAbility {
 
     @Override
     public String getName() {
-        return "Jump Ability";
+        return "Jump_Ability";
     }
 
     @Override
@@ -55,8 +57,4 @@ public class JumpAbility implements WeaponAbility {
         return true;
     }
 
-    @Override
-    public AbilityType getType() {
-        return AbilityType.JUMP;
-    }
 }

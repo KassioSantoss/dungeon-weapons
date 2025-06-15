@@ -7,7 +7,7 @@ public interface WeaponAbility {
 
     String getName();
 
-    AbilityType getType();
+   // AbilityRegistry getType();
 
     default boolean requiresRightClick() {
         return false;

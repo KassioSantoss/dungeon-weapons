@@ -1,8 +1,7 @@
 package brcomkassin.dungeonWeapons.ability;
 
 import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
-import brcomkassin.dungeonWeapons.utils.KColoredLogger;
-import brcomkassin.dungeonWeapons.utils.KCooldownUtils;
+import brcomkassin.dungeonWeapons.utils.KCooldownManagerUtils;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
 import brcomkassin.dungeonWeapons.utils.KTrigUtils;
@@ -13,15 +12,14 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-
 import java.util.List;
 
 public class RepulsionWaveAbility implements WeaponAbility {
 
     @Override
-    public void execute(AbilityContext abilityContext) {
-        Player player = abilityContext.player();
-        WeaponParticleMetadata particleMetadata = abilityContext.weapon().getParticleMetadata();
+    public void execute(AbilityContext context) {
+        Player player = context.player();
+        WeaponParticleMetadata particleMetadata = context.weapon().getParticleMetadata();
         Particle.DustOptions dustOptions = new Particle.DustOptions(particleMetadata.getColor(), particleMetadata.getSize());
         KTrigUtils.spawnCircleParticles(player.getLocation().add(0, 0.4, 0), 3, 50, dustOptions);
 
@@ -33,7 +31,8 @@ public class RepulsionWaveAbility implements WeaponAbility {
                 .filter(entity -> entity.getType() != EntityType.ITEM_DISPLAY)
                 .toList();
 
-        KCooldownUtils.setCooldown(this.getName() + ":" + player.getName(), 1000L * 5);
+        KCooldownManagerUtils.apply(player.getUniqueId(), KCooldownManagerUtils.CooldownType.ABILITY,
+                context.weapon().getCurrentAbility().getName(), 1000L * 5L);
 
         if (nearbyEntities.isEmpty()) return;
 
@@ -74,12 +73,7 @@ public class RepulsionWaveAbility implements WeaponAbility {
 
     @Override
     public String getName() {
-        return "Repulsion Wave Ability";
-    }
-
-    @Override
-    public AbilityType getType() {
-        return AbilityType.REPULSION_WAVE;
+        return "Repulsion_Wave";
     }
 
     @Override
