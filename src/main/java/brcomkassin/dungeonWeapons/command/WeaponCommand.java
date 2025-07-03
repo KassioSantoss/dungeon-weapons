@@ -4,9 +4,13 @@ import brcomkassin.dungeonWeapons.DungeonMessages;
 import brcomkassin.dungeonWeapons.registry.AbilityRegistry;
 import brcomkassin.dungeonWeapons.ability.WeaponAbility;
 import brcomkassin.dungeonWeapons.registry.WeaponRegistry;
+import brcomkassin.dungeonWeapons.utils.KGradient;
+import brcomkassin.dungeonWeapons.utils.KItemBuilder;
+import brcomkassin.dungeonWeapons.utils.KMessage;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
 import brcomkassin.dungeonWeapons.manager.WeaponManager;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,6 +39,13 @@ public class WeaponCommand implements CommandExecutor, TabExecutor {
 
         switch (args[0].toLowerCase()) {
             case "give" -> handleGive(player, args);
+            case "test" -> {
+                ItemStack build = KItemBuilder.of(Material.SWEET_BERRIES)
+                        .setName("&6Banana")
+                        .setCustomModelData(1)
+                        .build();
+                player.getInventory().addItem(build);
+            }
             case "ability" -> handleAbility(player, args);
             case "spawn" -> {
                 if (!player.isOp()) return false;

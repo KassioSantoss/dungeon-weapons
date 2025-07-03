@@ -13,6 +13,7 @@ import brcomkassin.dungeonWeapons.manager.WeaponManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -146,6 +147,7 @@ public class WeaponListener implements Listener {
             Component message = KMessageText.create()
                     .text("Você não possui nenhuma habilidade ativa no momento").color(56, 131, 194)
                     .build();
+
             KMessage.Chat.send(player, message);
             return;
         }

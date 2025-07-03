@@ -21,6 +21,7 @@ public interface KMessage {
             Arrays.stream(component)
                     .forEach(player::sendMessage);
         }
+
     }
 
     class ActionBar {

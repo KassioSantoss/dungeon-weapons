@@ -19,4 +19,5 @@ public class KComponentAdapter implements JsonSerializer<Component>, JsonDeseria
     public JsonElement serialize(Component src, Type typeOfSrc, JsonSerializationContext context) {
         return GsonComponentSerializer.gson().serializeToTree(src);
     }
+
 }

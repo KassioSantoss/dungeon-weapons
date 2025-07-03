@@ -1,20 +1,23 @@
 package brcomkassin.dungeonWeapons.weapon;
 
-import brcomkassin.dungeonWeapons.registry.AbilityRegistry;
-import brcomkassin.dungeonWeapons.ability.AvailableAbilities;
+import brcomkassin.dungeonWeapons.DungeonWeaponsPlugin;
+import brcomkassin.dungeonWeapons.ability.utils.AvailableAbilities;
 import brcomkassin.dungeonWeapons.utils.KPDCUtil;
 import brcomkassin.dungeonWeapons.ability.WeaponAbility;
 import brcomkassin.dungeonWeapons.context.AbilityContext;
-import brcomkassin.dungeonWeapons.utils.KColoredLogger;
 import brcomkassin.dungeonWeapons.utils.KItemBuilder;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponParticleMetadata;
 import brcomkassin.dungeonWeapons.weapon.data.WeaponSerializer;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 
@@ -30,24 +33,39 @@ public abstract class Weapon {
     protected WeaponParticleMetadata particleMetadata;
     protected WeaponAbility currentAbility;
     protected AvailableAbilities availableAbilities;
+    protected boolean isCustomModelItem = false;
 
-    public Weapon(String name,  String genericType, Material material,
-                  WeaponParticleMetadata particleMetadata, AvailableAbilities availableAbilities) {
-        this(Component.text(name), genericType, material, particleMetadata, availableAbilities);
+    public Weapon(WeaponInfo info) {
+        this(
+                info.getDisplayName(),
+                info.getGeneric(),
+                info.getMaterial(),
+                info.getParticleMetadata(),
+                info.getAvailableAbilities(),
+                info.isCustomModelItem());
     }
 
-    public Weapon(Component displayName,  String genericType, Material material,
-                  WeaponParticleMetadata particleMetadata, AvailableAbilities availableAbilities) {
+    public Weapon(Component displayName, String genericType, Material material,
+                  WeaponParticleMetadata particleMetadata, AvailableAbilities availableAbilities, boolean isCustomModelItem) {
+
         this.displayName = displayName;
         this.id = UUID.randomUUID();
         this.genericType = genericType;
         this.abilities = new LinkedHashSet<>();
         this.particleMetadata = particleMetadata;
         this.availableAbilities = availableAbilities;
+        this.isCustomModelItem = isCustomModelItem;
 
-        this.weaponItem = KItemBuilder.of(material)
-                .setName(displayName)
-                .build();
+        if (isCustomModelItem) {
+            this.weaponItem = KItemBuilder.of(material)
+                    .setName(displayName)
+                    .setItemModel(new NamespacedKey("template", genericType))
+                    .build();
+        } else {
+            this.weaponItem = KItemBuilder.of(material)
+                    .setName(displayName)
+                    .build();
+        }
     }
 
     public void savePDC(Player player) {
@@ -66,11 +84,7 @@ public abstract class Weapon {
     }
 
     public boolean unlockAbilities(Player player, WeaponAbility ability) {
-        if (!availableAbilities.containsAbility(ability)) {
-            KColoredLogger.error("[unlockAbilities]: Ability " + AbilityRegistry.getAbility(ability.getName()).getName()
-                    + " not found in available abilities");
-            return false;
-        }
+        if (!availableAbilities.containsAbility(ability)) return false;
         addAbility(player, ability);
         return true;
     }

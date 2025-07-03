@@ -5,8 +5,8 @@ import brcomkassin.dungeonWeapons.ability.JumpAbility;
 import brcomkassin.dungeonWeapons.ability.MeteorFallAbility;
 import brcomkassin.dungeonWeapons.ability.RepulsionWaveAbility;
 import brcomkassin.dungeonWeapons.initializer.WeaponInitializer;
+import brcomkassin.dungeonWeapons.weapon.item.BetaWeapon;
 import brcomkassin.dungeonWeapons.weapon.item.BigBertha;
-import brcomkassin.dungeonWeapons.weapon.item.RoyalSword;
 import lombok.Getter;
 
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,7 +30,7 @@ public final class DungeonWeaponsPlugin extends JavaPlugin {
         weaponInitializer.registryAbilities(MeteorFallAbility::new);
 
         weaponInitializer.registryWeapons(BigBertha::new);
-        weaponInitializer.registryWeapons(RoyalSword::new);
+        weaponInitializer.registryWeapons(BetaWeapon::new);
     }
 
     @Override

@@ -23,11 +23,13 @@ public class WeaponManager {
 
     public Weapon getWeapon(ItemStack itemStack) {
         if (!isWeapon(itemStack)) return null;
+
         WeaponData weaponData = WeaponSerializer.readFromItem(itemStack);
 
         if (weaponData == null) return null;
 
         Weapon cached = WeaponCache.getWeaponFromCache(weaponData.getId());
+
         if (cached != null) return cached;
 
         WeaponInstance weaponInstance = new WeaponInstance(weaponData);

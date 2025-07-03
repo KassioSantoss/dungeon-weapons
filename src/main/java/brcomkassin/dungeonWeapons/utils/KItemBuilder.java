@@ -120,6 +120,9 @@ public final class KItemBuilder {
         });
     }
 
+    public KItemBuilder setItemModel(NamespacedKey namespacedKey) {
+        return consumeMeta(meta -> meta.setItemModel(namespacedKey));
+    }
 
     public KItemBuilder setNamespacedKeyById(String id) {
         return consumeMeta(meta -> {

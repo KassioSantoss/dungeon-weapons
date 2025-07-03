@@ -1,7 +1,7 @@
 package brcomkassin.dungeonWeapons.weapon.data;
 
-import brcomkassin.dungeonWeapons.ability.AvailableAbilities;
 import brcomkassin.dungeonWeapons.ability.WeaponAbility;
+import brcomkassin.dungeonWeapons.ability.utils.AvailableAbilities;
 import brcomkassin.dungeonWeapons.weapon.Weapon;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +22,7 @@ public class WeaponData {
     private List<String> availableAbilities;
     private WeaponParticleMetadata particleMetadata;
     private Material material;
+    private boolean isCustomModelItem;
 
     public WeaponData(Weapon weapon) {
         this.id = weapon.getId();
@@ -33,6 +34,7 @@ public class WeaponData {
         this.currentAbility = weapon.getCurrentAbility() != null ? weapon.getCurrentAbility().getName() : null;
         this.availableAbilities = weapon.getAvailableAbilities().getAbilities().stream().map(WeaponAbility::getName).toList();
         this.particleMetadata = weapon.getParticleMetadata();
+        this.isCustomModelItem = weapon.isCustomModelItem();
     }
 
     @Override

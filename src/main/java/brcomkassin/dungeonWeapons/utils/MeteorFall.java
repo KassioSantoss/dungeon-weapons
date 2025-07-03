@@ -53,7 +53,7 @@ public class MeteorFall extends BukkitRunnable {
         this.cumulativeSpin = new Quaternionf();
 
         this.meteorDisplay = world.spawn(startLocation, BlockDisplay.class, display -> {
-            display.setBlock(new ItemStack(Material.PLAYER_HEAD).getType().createBlockData());
+            display.setBlock(new ItemStack(Material.NETHERITE_BLOCK).getType().createBlockData());
 
             Transformation initialTransform = display.getTransformation();
 
@@ -99,7 +99,6 @@ public class MeteorFall extends BukkitRunnable {
         world.playSound(meteorDisplay.getLocation(), Sound.ENTITY_WARDEN_DIG, 0.5F, 0.5F);
     }
 
-
     private void onImpact() {
         cleanup();
         world.createExplosion(impactLocation, 0F, false, false);
@@ -117,33 +116,23 @@ public class MeteorFall extends BukkitRunnable {
     }
 
     private void cleanup() {
-
         if (meteorDisplay != null && meteorDisplay.isValid()) {
-
             meteorDisplay.remove();
-
         }
-
         this.cancel();
-
     }
-
 
     private void applyRepulsionImpulse(Location center, Entity entity) {
         if (!center.getWorld().equals(entity.getWorld())) return;
-
         Vector direction = entity.getLocation().toVector().subtract(center.toVector());
 
-
         if (direction.lengthSquared() == 0) return;
-
 
         direction.normalize();
 
         double strength = 2.0;
 
         double verticalBoost = 0.8;
-
 
         direction.multiply(strength);
 

@@ -1,4 +1,6 @@
-package brcomkassin.dungeonWeapons.ability;
+package brcomkassin.dungeonWeapons.ability.utils;
+
+import brcomkassin.dungeonWeapons.ability.WeaponAbility;
 
 import java.util.ArrayList;
 import java.util.List;
